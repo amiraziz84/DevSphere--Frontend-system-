@@ -1,0 +1,36 @@
+.comment-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.comment-box textarea {
+  width: 100%;
+  min-height: 70px;
+  padding: 10px;
+  resize: vertical;
+  font-size: 14px;
+  border: 1px solid #dadada;
+  border-radius: 6px;
+  outline: none;
+}
+
+.comment-box textarea:focus {
+  border-color: #6366f1; /* Indigo-500 */
+}
+
+.comment-box button {
+  align-self: flex-end;
+  padding: 6px 14px;
+  background: #6366f1;
+  color: white;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.comment-box button:hover {
+  opacity: 0.9;
+}

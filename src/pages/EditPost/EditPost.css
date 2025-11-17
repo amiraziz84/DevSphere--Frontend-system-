@@ -1,0 +1,76 @@
+/* EditPost.css */
+
+.edit-post-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.edit-post-container h1 {
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+}
+
+.edit-post-form .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.2rem;
+}
+
+.edit-post-form .form-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.edit-post-form .form-group input,
+.edit-post-form .form-group textarea {
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.edit-post-form .form-group input:focus,
+.edit-post-form .form-group textarea:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.input-error {
+  border-color: #e74c3c;
+}
+
+.error-text {
+  color: #e74c3c;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.update-btn {
+  width: 100%;
+  padding: 0.85rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.update-btn:hover {
+  background-color: #0056b3;
+}
+
+.update-btn:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}

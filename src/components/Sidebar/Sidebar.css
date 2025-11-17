@@ -1,0 +1,65 @@
+.sidebar-container {
+  width: 230px;
+  background: var(--sidebar-bg);
+  padding: 1rem;
+  border-radius: 10px;
+  height: fit-content;
+  position: sticky;
+  top: 80px;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.6rem 0.8rem;
+  text-decoration: none;
+  color: var(--text-color);
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.sidebar-item:hover {
+  background: var(--card-bg);
+}
+
+/* --- Tags (dev.to style) --- */
+.sidebar-footer {
+  margin-top: 1.5rem;
+}
+
+.sidebar-footer h4 {
+  font-size: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.tags-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.tags-list span {
+  display: inline-block;
+  padding: 6px 10px;
+  background: var(--tag-bg);
+  color: var(--tag-color);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: 0.2s;
+}
+
+.tags-list span:hover {
+  background: var(--card-bg);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}

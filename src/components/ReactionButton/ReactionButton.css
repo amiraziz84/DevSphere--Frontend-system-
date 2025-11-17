@@ -1,0 +1,30 @@
+.reaction-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f4f4f4;
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: 0.2s ease;
+}
+
+.reaction-button:hover {
+  background: #e9e9e9;
+}
+
+.reaction-button.active {
+  background: #d1eaff;
+  border-color: #88c7ff;
+}
+
+.reaction-emoji {
+  font-size: 18px;
+}
+
+.reaction-count {
+  font-weight: 600;
+  color: #333;
+}

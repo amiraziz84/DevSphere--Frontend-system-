@@ -1,0 +1,15 @@
+.search-container {
+  padding: 20px;
+}
+.search-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+.user-card {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+.posts-list {
+  margin-top: 10px;
+}
