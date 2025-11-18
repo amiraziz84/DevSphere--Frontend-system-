@@ -1,0 +1,54 @@
+.notification-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem;
+  border-radius: 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+  margin-bottom: 0.5rem;
+}
+
+.notification-item:hover {
+  background: var(--hover-bg);
+}
+
+.notification-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-text {
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+.notification-text strong {
+  font-weight: 600;
+}
+
+.notification-time {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+}
+
+/* Unread blue dot */
+.unread-dot {
+  width: 10px;
+  height: 10px;
+  background: #007bff;
+  border-radius: 50%;
+  position: absolute;
+  right: 10px;
+  top: 12px;
+}

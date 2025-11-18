@@ -1,37 +1,63 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./Navbar.css";
 
 function Navbar() {
   const navigate = useNavigate();
+
+  // THEME
   const [theme, setTheme] = useState("light");
+
+  // SEARCH STATES
   const [query, setQuery] = useState("");
+  const [results, setResults] = useState({ users: [], posts: [], tags: [] });
   const [showDropdown, setShowDropdown] = useState(false);
 
+  // LOGIN STATES
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLoginDropdown, setShowLoginDropdown] = useState(false);
+
+  // NOTIFICATIONS
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications] = useState([
+    { id: 1, text: "New follower: @john", time: "2m ago" },
+    { id: 2, text: "Your post got 5 likes", time: "10m ago" },
+    { id: 3, text: "New comment on your post", time: "1h ago" },
+    { id: 4, text: "System update available", time: "Yesterday" },
+  ]);
+
+  // REFS
+  const searchRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const notificationsRef = useRef(null);
+  const loginRef = useRef(null);
+
+  let typingTimeout = useRef(null);
+
   useEffect(() => {
-    // Apply theme to document root
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
-  // Mock data
-  const posts = [
-    { id: 1, title: "React Best Practices" },
-    { id: 2, title: "Node.js Tips" },
-    { id: 3, title: "CSS Grid Layouts" },
-  ];
+  // Debounce Search
+  const handleSearch = (text) => {
+    clearTimeout(typingTimeout.current);
+    typingTimeout.current = setTimeout(async () => {
+      if (text.trim() === "") {
+        setResults({ users: [], posts: [], tags: [] });
+        return;
+      }
+      const res = await fetch(`http://localhost:3000/search?q=${text}`);
+      const data = await res.json();
+      setResults(data);
+    }, 300);
+  };
 
-  const users = [
-    { username: "m_amir", name: "Muhammad Amir Aziz" },
-    { username: "dev_hassan", name: "Hassan Ali" },
-    { username: "frontend_sara", name: "Sara Khan" },
-  ];
-
-  const filteredPosts = posts.filter((p) =>
-    p.title.toLowerCase().includes(query.toLowerCase())
-  );
-  const filteredUsers = users.filter((u) =>
-    u.username.toLowerCase().includes(query.toLowerCase())
-  );
+  const onChangeSearch = (e) => {
+    const value = e.target.value;
+    setQuery(value);
+    setShowDropdown(true);
+    handleSearch(value);
+  };
 
   const handleSelect = (path) => {
     setQuery("");
@@ -39,7 +65,40 @@ function Navbar() {
     navigate(path);
   };
 
-  const toggleTheme = () => setTheme(theme === "light" ? "dark" : "light");
+  // OUTSIDE CLICK + ESC
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(e.target) &&
+        !dropdownRef.current?.contains(e.target)
+      ) setShowDropdown(false);
+
+      if (notificationsRef.current && !notificationsRef.current.contains(e.target))
+        setShowNotifications(false);
+
+      if (loginRef.current && !loginRef.current.contains(e.target))
+        setShowLoginDropdown(false);
+    };
+
+    const handleEsc = (e) => {
+      if (e.key === "Escape") {
+        setShowDropdown(false);
+        setShowNotifications(false);
+        setShowLoginDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, []);
+
+  const fakeLogin = () => setIsLoggedIn(true);
+  const fakeLogout = () => setIsLoggedIn(false);
 
   return (
     <nav className="navbar">
@@ -47,39 +106,35 @@ function Navbar() {
         <Link to="/" className="logo">DevSphere</Link>
       </div>
 
-      <div className="nav-middle">
+      <div className="nav-middle" ref={searchRef}>
         <input
           type="text"
-          placeholder="Search posts or users..."
-          className="search-input"
+          placeholder="Search posts, users, tags..."
           value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setShowDropdown(e.target.value.length > 0);
-          }}
+          className="search-input"
+          onChange={onChangeSearch}
+          onFocus={() => query && setShowDropdown(true)}
         />
-
-        {showDropdown && (
-          <div className="search-dropdown">
-            {filteredUsers.length > 0 && (
+        {showDropdown && query.length > 0 && (
+          <div className="search-dropdown" ref={dropdownRef}>
+            {results.users.length > 0 && (
               <>
                 <strong>Users</strong>
-                {filteredUsers.map((u) => (
+                {results.users.map((u) => (
                   <div
                     key={u.username}
                     className="dropdown-item"
                     onClick={() => handleSelect(`/u/${u.username}`)}
                   >
-                    @{u.username} - {u.name}
+                    @{u.username} — {u.name}
                   </div>
                 ))}
               </>
             )}
-
-            {filteredPosts.length > 0 && (
+            {results.posts.length > 0 && (
               <>
                 <strong>Posts</strong>
-                {filteredPosts.map((p) => (
+                {results.posts.map((p) => (
                   <div
                     key={p.id}
                     className="dropdown-item"
@@ -90,21 +145,139 @@ function Navbar() {
                 ))}
               </>
             )}
-
-            {filteredPosts.length === 0 && filteredUsers.length === 0 && (
-              <div className="dropdown-item">No results found</div>
+            {results.tags.length > 0 && (
+              <>
+                <strong>Tags</strong>
+                {results.tags.map((t) => (
+                  <div
+                    key={t.name}
+                    className="dropdown-item"
+                    onClick={() => handleSelect(`/tag/${t.name}`)}
+                  >
+                    #{t.name}
+                  </div>
+                ))}
+              </>
             )}
           </div>
         )}
       </div>
 
       <div className="nav-right">
-        <button onClick={toggleTheme}>
-          {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+
+        <button className="circle-btn" onClick={() => navigate("/create-post")}>
+          ✏️
         </button>
-        <Link to="/create-post" className="nav-btn">Create Post</Link>
-        <Link to="/notifications" className="nav-icon">🔔</Link>
-        <Link to="/login" className="nav-btn login-btn">Login</Link>
+
+        <button
+          className="circle-btn"
+          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+        >
+          {theme === "light" ? "🌙" : "☀️"}
+        </button>
+
+        {/* Notifications */}
+        <div className="notification-wrapper" ref={notificationsRef}>
+          <button
+            className="circle-btn notification-btn"
+            onClick={() => setShowNotifications((prev) => !prev)}
+          >
+            🔔
+            {notifications.length > 0 && (
+              <span className="notif-count">{notifications.length}</span>
+            )}
+          </button>
+
+          {showNotifications && (
+            <div className="notif-dropdown">
+              {notifications.map((n) => (
+                <div key={n.id} className="dropdown-item notif-item">
+                  <div className="notif-text">{n.text}</div>
+                  <div className="notif-time">{n.time}</div>
+                </div>
+              ))}
+              <div
+                className="dropdown-item view-all"
+                onClick={() => {
+                  navigate("/notifications");
+                  setShowNotifications(false);
+                }}
+              >
+                View All Notifications
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Login */}
+        <div className="login-wrapper" ref={loginRef}>
+          {!isLoggedIn ? (
+            <>
+              <button
+                className="login-btn"
+                onClick={() => setShowLoginDropdown((prev) => !prev)}
+              >
+                Login
+              </button>
+              {showLoginDropdown && (
+                <div className="login-dropdown">
+                  <div
+                    className="login-dropdown-item"
+                    onClick={() => {
+                      navigate("/login");
+                      setShowLoginDropdown(false);
+                    }}
+                  >
+                    Sign in
+                  </div>
+                  <div
+                    className="login-dropdown-item"
+                    onClick={() => {
+                      navigate("/signup");
+                      setShowLoginDropdown(false);
+                    }}
+                  >
+                    Create Account
+                  </div>
+                  <div
+                    className="login-dropdown-item"
+                    onClick={fakeLogin}
+                  >
+                    (Dev) Quick Login
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <button
+                className="avatar-btn"
+                onClick={() => setShowLoginDropdown((p) => !p)}
+              >
+                AA
+              </button>
+              {showLoginDropdown && (
+                <div className="login-dropdown user-menu">
+                  <div className="user-info">
+                    <div className="avatar-large">AA</div>
+                    <div>
+                      <div className="user-name">Amir Aziz</div>
+                      <div className="user-username">@amiraziz</div>
+                    </div>
+                  </div>
+                  <div className="menu-item">Bookmarks</div>
+                  <div className="menu-item">My reading history</div>
+                  <div className="menu-item">Account settings</div>
+                  <div className="menu-item">Changelog</div>
+                  <div className="menu-item">Support & feedback</div>
+                  <div className="menu-item logout" onClick={fakeLogout}>
+                    Log out
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </nav>
   );

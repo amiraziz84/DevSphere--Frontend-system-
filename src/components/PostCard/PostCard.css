@@ -47,12 +47,20 @@
   flex-wrap: wrap;
 }
 
-.tag {
+.post-tags span {
   font-size: 0.75rem;
-  background-color: var(--tag-bg);
-  color: var(--tag-color);
+  background-color: #f5f5f5;
+  color: #333;
   padding: 2px 6px;
   border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #e4e4e4;
+  transition: all 0.15s ease;
+}
+
+.post-tags span:hover {
+  background-color: #e0e0e0;
+  border-color: #c8c8c8;
 }
 
 .post-title {
@@ -63,7 +71,7 @@
 
 .post-snippet {
   font-size: 0.95rem;
-  color: var(--text-color-secondary);
+  color: var(--text-color-secondary, #555);
   margin-bottom: 0.8rem;
 }
 

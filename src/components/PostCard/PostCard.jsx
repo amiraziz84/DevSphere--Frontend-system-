@@ -1,7 +1,7 @@
 import "./PostCard.css";
 import ReactionsFeature from "../../features/reactions/ReactionsFeature";
 
-const PostCard = ({ post }) => {
+const PostCard = ({ post, setActiveTag, activeTag }) => {
   return (
     <div className="post-card">
       {/* Post Header */}
@@ -20,7 +20,11 @@ const PostCard = ({ post }) => {
 
         <div className="post-tags">
           {post.tags?.map((tag, idx) => (
-            <span key={idx} className="tag">
+            <span
+              key={idx}
+              className={activeTag === tag ? "active" : ""}
+              onClick={() => setActiveTag(tag)}
+            >
               #{tag}
             </span>
           ))}
