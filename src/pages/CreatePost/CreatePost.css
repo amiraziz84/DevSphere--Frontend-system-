@@ -5,49 +5,79 @@
 }
 
 .create-post-container h1 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
 }
 
+/* Form */
 .create-post-form .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
   display: flex;
   flex-direction: column;
 }
 
 .create-post-form label {
-  font-weight: bold;
-  margin-bottom: 0.3rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: #333;
 }
 
+/* Inputs */
 .create-post-form input,
 .create-post-form textarea {
-  padding: 0.5rem;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #cfcfcf;
   font-size: 1rem;
+  outline: none;
+  transition: 0.2s ease;
 }
 
+.create-post-form input:focus,
+.create-post-form textarea:focus {
+  border-color: #0077ff;
+}
+
+/* Error */
 .input-error {
-  border-color: red;
+  border-color: #ff0000 !important;
 }
 
 .error-text {
-  color: red;
-  font-size: 0.8rem;
   margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: red;
 }
 
+/* Submit Button */
 .create-post-btn {
   padding: 0.7rem 1.5rem;
   background-color: #0077ff;
   color: #fff;
+  font-weight: 600;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.create-post-btn:hover {
+  background-color: #005cd4;
 }
 
 .create-post-btn:disabled {
   background-color: #aaa;
   cursor: not-allowed;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .create-post-container {
+    padding: 0 0.5rem;
+  }
+
+  .create-post-container h1 {
+    font-size: 1.5rem;
+  }
 }

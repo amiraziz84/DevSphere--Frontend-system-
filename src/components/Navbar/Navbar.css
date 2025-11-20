@@ -114,15 +114,19 @@
 
 .search-dropdown strong {
   display: block;
-  padding: 0.5rem 1rem;
-  font-size: 0.72rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.75rem;
   color: var(--secondary-text);
   text-transform: uppercase;
   font-weight: 600;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
+/* DROPDOWN ITEMS WITH AVATAR AND FLEX */
 .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem; /* space between avatar and text */
   padding: 0.72rem 1rem;
   cursor: pointer;
   font-size: 0.92rem;
@@ -135,9 +139,11 @@
   background: var(--hover-bg);
 }
 
-.dropdown-item.active {
-  background: none;
-  color: var(--text-color);
+.dropdown-item img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 /* RIGHT SIDE BUTTONS */
@@ -284,8 +290,13 @@
 }
 
 /* Notifications */
+.notification-wrapper {
+  position: relative; /* dropdown ke liye context */
+  display: inline-block; /* ensures button stays in place */
+}
+
 .notif-count {
-  position: absolute;
+  position: absolute; /* relative to wrapper, not affecting icon position */
   top: 0;
   right: 0;
   transform: translate(50%, -50%);
@@ -299,7 +310,7 @@
 
 .notif-dropdown {
   position: absolute;
-  top: 110%;
+  top: 100%; /* exactly below button */
   right: 0;
   width: 260px;
   max-height: 320px;
@@ -311,6 +322,7 @@
   z-index: 50;
   animation: dropdownFade 0.16s ease-out;
   padding: 0.5rem 0;
+  
 }
 
 .notif-item {
@@ -336,12 +348,16 @@
 }
 
 .view-all {
-  text-align: center;
+  display: flex;             /* flex container banaya */
+  justify-content: center;   /* horizontally center */
+  align-items: center;       /* vertically center */
   font-weight: 500;
   cursor: pointer;
   padding: 0.6rem 0;
   border-top: 1px solid var(--border);
   color: var(--primary-color);
+  border-radius: 0 0 12px 12px; /* optional, dropdown bottom rounding */
+  transition: background 0.18s ease;
 }
 
 .view-all:hover {

@@ -1,15 +1,56 @@
-.search-container {
-  padding: 20px;
+.search-page-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  background: #fff;
 }
-.search-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 20px;
+
+.search-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 25px;
 }
-.user-card {
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-}
-.posts-list {
+
+.results-container {
   margin-top: 10px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 20px 0 8px;
+  color: #222;
+}
+
+/* USERS */
+.users-list {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+
+.user-row {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.user-row:hover {
+  background: #f2f2f2;
+}
+
+.no-result {
+  padding: 12px;
+  font-size: 14px;
+  color: #999;
+}
+
+/* POSTS */
+.posts-list {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }

@@ -1,7 +1,10 @@
 import "./PostCard.css";
 import ReactionsFeature from "../../features/reactions/ReactionsFeature";
+import { useNavigate } from "react-router-dom";
 
 const PostCard = ({ post, setActiveTag, activeTag }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="post-card">
       {/* Post Header */}
@@ -18,22 +21,14 @@ const PostCard = ({ post, setActiveTag, activeTag }) => {
           </div>
         </div>
 
-        <div className="post-tags">
-          {post.tags?.map((tag, idx) => (
-            <span
-              key={idx}
-              className={activeTag === tag ? "active" : ""}
-              onClick={() => setActiveTag(tag)}
-            >
-              #{tag}
-            </span>
-          ))}
-        </div>
+        
       </div>
 
       {/* Post Title & Snippet */}
-      <h3 className="post-title">{post.title}</h3>
-      <p className="post-snippet">{post.content}</p>
+      <div onClick={() => navigate(`/post/${post.id}`)} style={{ cursor: "pointer" }}>
+        <h3 className="post-title">{post.title}</h3>
+        <p className="post-snippet">{post.content}</p>
+      </div>
 
       {/* Reaction Buttons Feature */}
       <ReactionsFeature

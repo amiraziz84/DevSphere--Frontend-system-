@@ -1,67 +1,60 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./HomePage.css";
 import PostCard from "../../components/PostCard/PostCard";
 import Sidebar from "../../components/Sidebar/Sidebar";
+import api from "../../services/api"; // backend connection
 
 const HomePage = () => {
-  const posts = [
-    {
-      title: "React Best Practices",
-      author: "m_amir",
-      authorAvatar: "https://i.pravatar.cc/40?img=12",
-      date: "Nov 16, 2025",
-      content: "Some tips for writing clean React code...",
-      tags: ["react", "javascript"],
-      likes: 10,
-      comments: 2,
-    },
-    {
-      title: "Node.js Tips",
-      author: "dev_hassan",
-      authorAvatar: "https://i.pravatar.cc/40?img=5",
-      date: "Nov 15, 2025",
-      content: "Efficient Node.js patterns...",
-      tags: ["nodejs", "backend"],
-      likes: 8,
-      comments: 1,
-    },
-    {
-      title: "CSS Grid Layouts",
-      author: "frontend_sara",
-      authorAvatar: "https://i.pravatar.cc/40?img=8",
-      date: "Nov 14, 2025",
-      content: "Learn CSS grid layouts for responsive designs...",
-      tags: ["css", "webdev"],
-      likes: 12,
-      comments: 3,
-    },
-  ];
+  const [posts, setPosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
+  const [activeTag, setActiveTag] = useState("");
+  const navigate = useNavigate();
 
-  // State for filtered posts
-  const [filteredPosts, setFilteredPosts] = useState(posts);
+  // Fetch posts from backend
+  useEffect(() => {
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+      navigate("/login"); // Redirect to login if not authenticated
+      return;
+    }
+
+    api.get("/posts")
+      .then(res => {
+        setPosts(res.data.data); // backend returns { total, page, limit, data }
+        setFilteredPosts(res.data.data);
+      })
+      .catch(err => console.error("Failed to fetch posts:", err));
+  }, [navigate]);
 
   // Handle tag click
   const handleTagClick = (tag) => {
+    setActiveTag(tag);
     const filtered = posts.filter((post) => post.tags.includes(tag));
     setFilteredPosts(filtered);
   };
 
   // Handle clear filter
-  const clearFilter = () => setFilteredPosts(posts);
+  const clearFilter = () => {
+    setActiveTag("");
+    setFilteredPosts(posts);
+  };
 
   return (
     <div className="home-container">
-      {/* LEFT SIDEBAR */}
       <Sidebar />
 
-      {/* FEED */}
       <main className="feed-area">
-        {filteredPosts.map((post, idx) => (
-          <PostCard key={idx} post={post} />
+        {filteredPosts.map((post) => (
+          <PostCard
+            key={post.id}
+            post={post}
+            activeTag={activeTag}
+            setActiveTag={handleTagClick}
+          />
         ))}
       </main>
 
-      {/* RIGHT SIDEBAR */}
       <aside className="right-sidebar">
         <div className="widget">
           <h3>Top Developers</h3>
@@ -76,7 +69,11 @@ const HomePage = () => {
           <h3>Latest Tags</h3>
           <div className="tags">
             {["react", "javascript", "nodejs", "css", "webdev"].map((tag) => (
-              <span key={tag} onClick={() => handleTagClick(tag)}>
+              <span
+                key={tag}
+                onClick={() => handleTagClick(tag)}
+                style={{ fontWeight: activeTag === tag ? "bold" : "normal" }}
+              >
                 #{tag}
               </span>
             ))}

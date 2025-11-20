@@ -8,12 +8,12 @@ function Navbar() {
   // THEME
   const [theme, setTheme] = useState("light");
 
-  // SEARCH STATES
+  // SEARCH
   const [query, setQuery] = useState("");
   const [results, setResults] = useState({ users: [], posts: [], tags: [] });
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // LOGIN STATES
+  // LOGIN
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
 
@@ -32,23 +32,29 @@ function Navbar() {
   const notificationsRef = useRef(null);
   const loginRef = useRef(null);
 
-  let typingTimeout = useRef(null);
+  const typingTimeout = useRef(null);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
-  // Debounce Search
+  // DEBOUNCE SEARCH
   const handleSearch = (text) => {
     clearTimeout(typingTimeout.current);
+
     typingTimeout.current = setTimeout(async () => {
       if (text.trim() === "") {
         setResults({ users: [], posts: [], tags: [] });
         return;
       }
-      const res = await fetch(`http://localhost:3000/search?q=${text}`);
-      const data = await res.json();
-      setResults(data);
+
+      try {
+        const res = await fetch(`http://localhost:3000/search?q=${text}`);
+        const data = await res.json();
+        setResults(data);
+      } catch (err) {
+        console.error("Search request failed:", err);
+      }
     }, 300);
   };
 
@@ -59,26 +65,41 @@ function Navbar() {
     handleSearch(value);
   };
 
+  // ENTER KEY → FULL SEARCH PAGE
+  const handleSearchSubmit = (e) => {
+    if (e.key === "Enter" && query.trim() !== "") {
+      navigate(`/search?q=${query}`);
+      setShowDropdown(false);
+    }
+  };
+
   const handleSelect = (path) => {
     setQuery("");
     setShowDropdown(false);
     navigate(path);
   };
 
-  // OUTSIDE CLICK + ESC
+  // ESC + CLICK OUTSIDE HANDLERS
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
         searchRef.current &&
         !searchRef.current.contains(e.target) &&
         !dropdownRef.current?.contains(e.target)
-      ) setShowDropdown(false);
+      ) {
+        setShowDropdown(false);
+      }
 
-      if (notificationsRef.current && !notificationsRef.current.contains(e.target))
+      if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(e.target)
+      ) {
         setShowNotifications(false);
+      }
 
-      if (loginRef.current && !loginRef.current.contains(e.target))
+      if (loginRef.current && !loginRef.current.contains(e.target)) {
         setShowLoginDropdown(false);
+      }
     };
 
     const handleEsc = (e) => {
@@ -91,6 +112,7 @@ function Navbar() {
 
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleEsc);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEsc);
@@ -102,10 +124,14 @@ function Navbar() {
 
   return (
     <nav className="navbar">
+      {/* LEFT */}
       <div className="nav-left">
-        <Link to="/" className="logo">DevSphere</Link>
+        <Link to="/" className="logo">
+          DevSphere
+        </Link>
       </div>
 
+      {/* SEARCH */}
       <div className="nav-middle" ref={searchRef}>
         <input
           type="text"
@@ -113,8 +139,10 @@ function Navbar() {
           value={query}
           className="search-input"
           onChange={onChangeSearch}
+          onKeyDown={handleSearchSubmit}
           onFocus={() => query && setShowDropdown(true)}
         />
+
         {showDropdown && query.length > 0 && (
           <div className="search-dropdown" ref={dropdownRef}>
             {results.users.length > 0 && (
@@ -131,6 +159,7 @@ function Navbar() {
                 ))}
               </>
             )}
+
             {results.posts.length > 0 && (
               <>
                 <strong>Posts</strong>
@@ -145,6 +174,7 @@ function Navbar() {
                 ))}
               </>
             )}
+
             {results.tags.length > 0 && (
               <>
                 <strong>Tags</strong>
@@ -163,9 +193,12 @@ function Navbar() {
         )}
       </div>
 
+      {/* RIGHT */}
       <div className="nav-right">
-
-        <button className="circle-btn" onClick={() => navigate("/create-post")}>
+        <button
+          className="circle-btn"
+          onClick={() => navigate("/create-post")}
+        >
           ✏️
         </button>
 
@@ -176,7 +209,7 @@ function Navbar() {
           {theme === "light" ? "🌙" : "☀️"}
         </button>
 
-        {/* Notifications */}
+        {/* NOTIFICATIONS */}
         <div className="notification-wrapper" ref={notificationsRef}>
           <button
             className="circle-btn notification-btn"
@@ -196,6 +229,7 @@ function Navbar() {
                   <div className="notif-time">{n.time}</div>
                 </div>
               ))}
+
               <div
                 className="dropdown-item view-all"
                 onClick={() => {
@@ -209,7 +243,7 @@ function Navbar() {
           )}
         </div>
 
-        {/* Login */}
+        {/* LOGIN */}
         <div className="login-wrapper" ref={loginRef}>
           {!isLoggedIn ? (
             <>
@@ -219,6 +253,7 @@ function Navbar() {
               >
                 Login
               </button>
+
               {showLoginDropdown && (
                 <div className="login-dropdown">
                   <div
@@ -230,6 +265,7 @@ function Navbar() {
                   >
                     Sign in
                   </div>
+
                   <div
                     className="login-dropdown-item"
                     onClick={() => {
@@ -239,6 +275,7 @@ function Navbar() {
                   >
                     Create Account
                   </div>
+
                   <div
                     className="login-dropdown-item"
                     onClick={fakeLogin}
@@ -256,6 +293,7 @@ function Navbar() {
               >
                 AA
               </button>
+
               {showLoginDropdown && (
                 <div className="login-dropdown user-menu">
                   <div className="user-info">
@@ -265,11 +303,13 @@ function Navbar() {
                       <div className="user-username">@amiraziz</div>
                     </div>
                   </div>
+
                   <div className="menu-item">Bookmarks</div>
                   <div className="menu-item">My reading history</div>
                   <div className="menu-item">Account settings</div>
                   <div className="menu-item">Changelog</div>
                   <div className="menu-item">Support & feedback</div>
+
                   <div className="menu-item logout" onClick={fakeLogout}>
                     Log out
                   </div>
