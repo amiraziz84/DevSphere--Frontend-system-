@@ -1,4 +1,6 @@
 import { useState, ChangeEvent, FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../../services/api";
 import "./LoginPage.css";
 
 interface LoginForm {
@@ -15,6 +17,8 @@ const LoginPage = () => {
   const [form, setForm] = useState<LoginForm>({ email: "", password: "" });
   const [errors, setErrors] = useState<LoginErrors>({});
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -34,16 +38,30 @@ const LoginPage = () => {
     return Object.keys(temp).length === 0;
   };
 
-  const handleLogin = (e: FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validate()) return;
 
-    setLoading(true);
-    setTimeout(() => {
-      console.log("Login Data:", form);
+    try {
+      setLoading(true);
+
+      const response = await api.post("/auth/login", {
+        email: form.email,
+        password: form.password,
+      });
+
+      // Save JWT in localStorage
+      localStorage.setItem("auth_token", response.data.accessToken);
+
+      alert("Login Successful!");
+
+      navigate("/"); // go to homepage
+
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Login failed!");
+    } finally {
       setLoading(false);
-      alert("Logged in successfully!");
-    }, 1200);
+    }
   };
 
   return (
@@ -74,7 +92,9 @@ const LoginPage = () => {
               onChange={handleChange}
               className={errors.password ? "input-error" : ""}
             />
-            {errors.password && <span className="error-text">{errors.password}</span>}
+            {errors.password && (
+              <span className="error-text">{errors.password}</span>
+            )}
           </div>
 
           <button type="submit" className="login-btn" disabled={loading}>

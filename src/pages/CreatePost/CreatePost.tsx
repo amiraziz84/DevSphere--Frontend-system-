@@ -1,5 +1,7 @@
-import { useState, ChangeEvent, FormEvent } from "react";
-import "./CreatePost.css";
+// src/pages/CreatePost/CreatePost.tsx
+import { useState, ChangeEvent, FormEvent } from 'react';
+import api from '../../services/api';
+import './CreatePost.css';
 
 interface PostForm {
   title: string;
@@ -15,56 +17,74 @@ interface PostErrors {
 
 const CreatePost = () => {
   const [form, setForm] = useState<PostForm>({
-    title: "",
-    content: "",
-    tags: "",
+    title: '',
+    content: '',
+    tags: '',
     banner: null,
   });
-
   const [errors, setErrors] = useState<PostErrors>({});
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const target = e.target;
 
-    // Agar file input ho
-    if (name === "banner" && e.target instanceof HTMLInputElement) {
-      const file = e.target.files?.[0] || null;
-      setForm((prev) => ({ ...prev, banner: file }));
+    if (target.name === 'banner' && target instanceof HTMLInputElement) {
+      setForm(prev => ({ ...prev, banner: target.files?.[0] || null }));
       return;
     }
 
-    // Normal input / textarea
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm(prev => ({ ...prev, [target.name]: target.value }));
   };
 
   const validate = () => {
     const temp: PostErrors = {};
-    if (!form.title.trim()) temp.title = "Title is required";
-    if (!form.content.trim()) temp.content = "Content is required";
+    if (!form.title.trim()) temp.title = 'Title is required';
+    if (!form.content.trim()) temp.content = 'Content is required';
     setErrors(temp);
     return Object.keys(temp).length === 0;
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // ----------------------------
+    // JWT token check
+    // ----------------------------
+    const token = localStorage.getItem('auth_token');
+    console.log('JWT token:', token); // ✅ check token
+    if (!token) {
+      alert('You must be logged in to create a post.');
+      return;
+    }
+
     if (!validate()) return;
 
     setLoading(true);
 
-    setTimeout(() => {
-      console.log("Post Data:", form);
-      setLoading(false);
-      alert("Post created successfully!");
-      setForm({
-        title: "",
-        content: "",
-        tags: "",
-        banner: null,
+    try {
+      const formData = new FormData();
+      formData.append('title', form.title);
+      formData.append('content', form.content);
+      formData.append('tags', form.tags);
+      if (form.banner) formData.append('banner', form.banner);
+
+      const res = await api.post('/posts', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`, // token bhejna mandatory
+        },
       });
-    }, 1000);
+
+      console.log('Created Post:', res.data);
+      alert('Post published successfully!');
+      setForm({ title: '', content: '', tags: '', banner: null });
+      setErrors({});
+    } catch (err: any) {
+      console.error('Failed to create post:', err);
+      alert(err.response?.data?.message || 'Failed to create post.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -72,7 +92,6 @@ const CreatePost = () => {
       <h1>Create New Post</h1>
 
       <form className="create-post-form" onSubmit={handleSubmit}>
-        {/* TITLE */}
         <div className="form-group">
           <label>Title</label>
           <input
@@ -80,14 +99,11 @@ const CreatePost = () => {
             name="title"
             value={form.title}
             onChange={handleChange}
-            className={errors.title ? "input-error" : ""}
+            className={errors.title ? 'input-error' : ''}
           />
-          {errors.title && (
-            <span className="error-text">{errors.title}</span>
-          )}
+          {errors.title && <span className="error-text">{errors.title}</span>}
         </div>
 
-        {/* BANNER */}
         <div className="form-group">
           <label>Banner (optional)</label>
           <input
@@ -98,7 +114,6 @@ const CreatePost = () => {
           />
         </div>
 
-        {/* CONTENT */}
         <div className="form-group">
           <label>Content</label>
           <textarea
@@ -106,14 +121,13 @@ const CreatePost = () => {
             rows={8}
             value={form.content}
             onChange={handleChange}
-            className={errors.content ? "input-error" : ""}
+            className={errors.content ? 'input-error' : ''}
           ></textarea>
           {errors.content && (
             <span className="error-text">{errors.content}</span>
           )}
         </div>
 
-        {/* TAGS */}
         <div className="form-group">
           <label>Tags (comma separated)</label>
           <input
@@ -124,9 +138,8 @@ const CreatePost = () => {
           />
         </div>
 
-        {/* BUTTON */}
         <button type="submit" className="create-post-btn" disabled={loading}>
-          {loading ? "Publishing..." : "Publish"}
+          {loading ? 'Publishing...' : 'Publish'}
         </button>
       </form>
     </div>

@@ -45,7 +45,7 @@ function App() {
           <Route path="/post/:slug" element={<PostDetails />} />
           <Route
             path="/create-post"
-            element={<ProtectedRoute><CreatePost /></ProtectedRoute>}
+            element={<CreatePost />}
           />
           <Route
             path="/edit/:postId"
@@ -62,7 +62,7 @@ function App() {
           {/* Other Pages */}
           <Route
             path="/notifications"
-            element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>}
+            element={<NotificationsPage />}
           />
           <Route path="/search" element={<SearchPage />} />
           <Route

@@ -1,40 +1,48 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import "./HomePage.css";
 import PostCard from "../../components/PostCard/PostCard";
 import Sidebar from "../../components/Sidebar/Sidebar";
-import api from "../../services/api"; // backend connection
+
+const mockPosts = [
+  {
+    id: 1,
+    title: "Learning React",
+    content: "React is a powerful library for building UIs...",
+    author: "m_amir",
+    authorAvatar: "https://i.pravatar.cc/40?u=1",
+    date: "2 hours ago",
+    tags: ["react", "javascript", "webdev"],
+  },
+  {
+    id: 2,
+    title: "Node.js Basics",
+    content: "Node.js allows you to run JavaScript on the server...",
+    author: "dev_hassan",
+    authorAvatar: "https://i.pravatar.cc/40?u=2",
+    date: "5 hours ago",
+    tags: ["nodejs", "javascript", "backend"],
+  },
+  {
+    id: 3,
+    title: "CSS Tricks",
+    content: "Learn some amazing CSS tricks for modern layouts...",
+    author: "frontend_sara",
+    authorAvatar: "https://i.pravatar.cc/40?u=3",
+    date: "1 day ago",
+    tags: ["css", "webdev", "frontend"],
+  },
+];
 
 const HomePage = () => {
-  const [posts, setPosts] = useState([]);
-  const [filteredPosts, setFilteredPosts] = useState([]);
+  const [posts] = useState(mockPosts);
+  const [filteredPosts, setFilteredPosts] = useState(mockPosts);
   const [activeTag, setActiveTag] = useState("");
-  const navigate = useNavigate();
 
-  // Fetch posts from backend
-  useEffect(() => {
-    const token = localStorage.getItem("auth_token");
-    if (!token) {
-      navigate("/login"); // Redirect to login if not authenticated
-      return;
-    }
-
-    api.get("/posts")
-      .then(res => {
-        setPosts(res.data.data); // backend returns { total, page, limit, data }
-        setFilteredPosts(res.data.data);
-      })
-      .catch(err => console.error("Failed to fetch posts:", err));
-  }, [navigate]);
-
-  // Handle tag click
   const handleTagClick = (tag) => {
     setActiveTag(tag);
-    const filtered = posts.filter((post) => post.tags.includes(tag));
-    setFilteredPosts(filtered);
+    setFilteredPosts(posts.filter((post) => post.tags.includes(tag)));
   };
 
-  // Handle clear filter
   const clearFilter = () => {
     setActiveTag("");
     setFilteredPosts(posts);
@@ -77,6 +85,7 @@ const HomePage = () => {
                 #{tag}
               </span>
             ))}
+
             <span
               style={{
                 marginTop: "0.5rem",

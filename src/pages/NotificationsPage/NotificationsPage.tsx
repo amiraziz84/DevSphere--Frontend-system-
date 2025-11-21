@@ -1,4 +1,6 @@
-import { useState } from "react";
+// src/features/notifications/NotificationsPage.tsx
+import { useState, useEffect } from "react";
+import api from "../../services/api";
 import "./NotificationsPage.css";
 
 interface Notification {
@@ -10,36 +12,37 @@ interface Notification {
 }
 
 const NotificationsPage = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: 1,
-      title: "New comment on your post",
-      message: "John commented: 'Great article!'",
-      read: false,
-      date: "Nov 17, 2025, 10:30 AM",
-    },
-    {
-      id: 2,
-      title: "New follower",
-      message: "Sarah started following you",
-      read: true,
-      date: "Nov 16, 2025, 02:15 PM",
-    },
-    {
-      id: 3,
-      title: "Post liked",
-      message: "Ali liked your post 'Understanding React Hooks'",
-      read: false,
-      date: "Nov 15, 2025, 08:20 PM",
-    },
-  ]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch notifications from backend
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await api.get("/notifications");
+        setNotifications(res.data);
+      } catch (err) {
+        console.error("Failed to fetch notifications:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNotifications();
+  }, []);
 
   // Mark notification as read
-  const markAsRead = (id: number) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+  const markAsRead = async (id: number) => {
+    try {
+      await api.patch(`/notifications/${id}/read`);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+      );
+    } catch (err) {
+      console.error("Failed to mark as read:", err);
+    }
   };
+
+  if (loading) return <p>Loading notifications...</p>;
 
   return (
     <div className="notifications-container">

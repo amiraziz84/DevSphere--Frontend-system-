@@ -1,4 +1,6 @@
 import { useState, ChangeEvent, FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../../services/api"; // axios instance
 import "./SignupPage.css";
 
 interface SignupForm {
@@ -11,9 +13,12 @@ interface SignupErrors {
   username?: string;
   email?: string;
   password?: string;
+  server?: string;
 }
 
 const SignupPage = () => {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState<SignupForm>({
     username: "",
     email: "",
@@ -30,6 +35,7 @@ const SignupPage = () => {
 
   const validate = () => {
     const temp: SignupErrors = {};
+
     if (!form.username.trim()) temp.username = "Username is required";
     if (!form.email.trim()) temp.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(form.email)) temp.email = "Invalid email";
@@ -41,23 +47,50 @@ const SignupPage = () => {
     return Object.keys(temp).length === 0;
   };
 
-  const handleSignup = (e: FormEvent<HTMLFormElement>) => {
+  const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validate()) return;
 
     setLoading(true);
-    setTimeout(() => {
-      console.log("Signup Data:", form);
-      alert("Account created successfully!");
-      setForm({ username: "", email: "", password: "" });
+    setErrors({});
+
+    try {
+      const res = await api.post("/auth/signup", {
+        name: form.username,
+        email: form.email,
+        password: form.password,
+      });
+
+      // Save token
+      localStorage.setItem("auth_token", res.data.accessToken);
+
+      // Redirect
+      navigate("/");
+
+    } catch (error: any) {
+      let msg = "Signup failed";
+
+      if (error.response?.data?.message) {
+        msg = error.response.data.message;
+      }
+
+      setErrors({ server: msg });
+    } finally {
       setLoading(false);
-    }, 1200);
+    }
   };
 
   return (
     <div className="signup-container">
       <div className="signup-card">
         <h2>Create Account 🚀</h2>
+
+        {errors.server && (
+          <div className="error-text" style={{ marginBottom: "10px" }}>
+            {errors.server}
+          </div>
+        )}
+
         <form onSubmit={handleSignup}>
           <div className="form-group">
             <label>Username</label>
@@ -68,7 +101,9 @@ const SignupPage = () => {
               onChange={handleChange}
               className={errors.username ? "input-error" : ""}
             />
-            {errors.username && <span className="error-text">{errors.username}</span>}
+            {errors.username && (
+              <span className="error-text">{errors.username}</span>
+            )}
           </div>
 
           <div className="form-group">
@@ -80,7 +115,9 @@ const SignupPage = () => {
               onChange={handleChange}
               className={errors.email ? "input-error" : ""}
             />
-            {errors.email && <span className="error-text">{errors.email}</span>}
+            {errors.email && (
+              <span className="error-text">{errors.email}</span>
+            )}
           </div>
 
           <div className="form-group">
@@ -92,7 +129,9 @@ const SignupPage = () => {
               onChange={handleChange}
               className={errors.password ? "input-error" : ""}
             />
-            {errors.password && <span className="error-text">{errors.password}</span>}
+            {errors.password && (
+              <span className="error-text">{errors.password}</span>
+            )}
           </div>
 
           <button type="submit" className="signup-btn" disabled={loading}>

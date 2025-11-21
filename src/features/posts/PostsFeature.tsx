@@ -1,32 +1,43 @@
-import { useState } from "react";
-import "./PostsFeature.css";
-import ReactionButton from "../../components/ReactionButton/ReactionButton";
-import CommentBox from "../../components/CommentBox/CommentBox";
+import { useState, useEffect } from "react";
+import api from "../../services/api";
+
+interface Post {
+  id: string; // ya number agar backend me number hai
+  title: string;
+  content: string;
+  tags?: string[]; // optional
+}
 
 const PostsFeature = () => {
-  const [posts, setPosts] = useState([
-    { id: 1, title: "First Post", content: "Hello world!" },
-    { id: 2, title: "Second Post", content: "React is awesome." },
-  ]);
+  const [posts, setPosts] = useState<Post[]>([]); // type fix
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoading(true);
+      try {
+        const res = await api.get<Post[]>("/posts"); // type hint
+        setPosts(res.data);
+      } catch (err) {
+        setError("Failed to fetch posts");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
-    <div className="posts-feature">
-      <h3>Posts</h3>
-
-      {posts.map((p) => (
-        <div key={p.id} className="post-card">
-          <h4>{p.title}</h4>
-          <p>{p.content}</p>
-
-          {/* Reaction Buttons */}
-          <div className="post-actions">
-            <ReactionButton postId={p.id} />
-          </div>
-
-          {/* Comment Box */}
-          <div className="post-comments">
-            <CommentBox postId={p.id} />
-          </div>
+    <div>
+      {posts.map(post => (
+        <div key={post.id}>
+          <h4>{post.title}</h4>
+          <p>{post.content}</p>
         </div>
       ))}
     </div>

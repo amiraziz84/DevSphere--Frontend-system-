@@ -1,37 +1,46 @@
-import { useState } from "react";
-import "./CommentsFeature.css";
+import { useState, useEffect } from "react";
+import api from "../../services/api";
 
 type Comment = {
-  id: number;
+  id: string;
   author: string;
   text: string;
 };
 
 interface CommentsFeatureProps {
-  postId: number; // explicitly typed
+  postId: string;
 }
 
 const CommentsFeature = ({ postId }: CommentsFeatureProps) => {
-  const [comments, setComments] = useState<Comment[]>([
-    { id: 1, author: "m_amir", text: "Great post!" },
-    { id: 2, author: "dev_hassan", text: "Thanks for sharing." },
-  ]);
-
+  const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
 
-  const handleAddComment = () => {
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const res = await api.get<Comment[]>(`/comments/${postId}`);
+        setComments(res.data);
+      } catch (err) {
+        console.error("Failed to fetch comments");
+      }
+    };
+    fetchComments();
+  }, [postId]);
+
+  const handleAddComment = async () => {
     if (!newComment.trim()) return;
 
-    setComments([
-      ...comments,
-      {
-        id: Date.now(),
-        author: "You",
+    try {
+      const res = await api.post(`/comments`, {
+        postId,
         text: newComment,
-      },
-    ]);
+      });
 
-    setNewComment("");
+      setComments((prev) => [...prev, res.data]);
+      setNewComment("");
+    } catch (err) {
+      console.error("Failed to add comment");
+    }
   };
 
   return (
