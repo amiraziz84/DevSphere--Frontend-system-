@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../../services/api";
 
+
 interface Post {
   id: string; // ya number agar backend me number hai
   title: string;
