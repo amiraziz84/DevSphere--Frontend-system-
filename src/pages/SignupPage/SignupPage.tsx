@@ -38,7 +38,8 @@ const SignupPage = () => {
 
     if (!form.username.trim()) temp.username = "Username is required";
     if (!form.email.trim()) temp.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(form.email)) temp.email = "Invalid email";
+    else if (!/\S+@\S+\.\S+/.test(form.email))
+      temp.email = "Invalid email";
     if (!form.password.trim()) temp.password = "Password is required";
     else if (form.password.length < 6)
       temp.password = "Password must be at least 6 characters";
@@ -63,6 +64,9 @@ const SignupPage = () => {
 
       // Save token
       localStorage.setItem("auth_token", res.data.accessToken);
+
+      // 🔥 Tell Navbar auth state changed
+      window.dispatchEvent(new Event("auth-changed"));
 
       // Redirect
       navigate("/");
