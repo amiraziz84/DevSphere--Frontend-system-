@@ -40,7 +40,8 @@ className="author-avatar"
 
   {/* Title & Content */}
   <div
-    onClick={() => navigate(`/post/${post.id || post._id}`)}
+    onClick={() => navigate(`/posts/${post.id || post._id}`)}
+
     style={{ cursor: "pointer" }}
   >
     <h3 className="post-title">{post.title}</h3>

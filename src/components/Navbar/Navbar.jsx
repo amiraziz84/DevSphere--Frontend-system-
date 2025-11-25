@@ -49,7 +49,8 @@ function Navbar() {
       }
 
       try {
-        const res = await fetch(`http://localhost:3000/search?q=${text}`);
+        const res = await fetch(`http://localhost:<BACKEND_PORT>/search?q=${text}`);
+
         const data = await res.json();
         setResults(data);
       } catch (err) {
@@ -167,7 +168,8 @@ function Navbar() {
                   <div
                     key={p.id}
                     className="dropdown-item"
-                    onClick={() => handleSelect(`/post/${p.id}`)}
+                    onClick={() => handleSelect(`/posts/${p.id}`)}
+
                   >
                     {p.title}
                   </div>
@@ -182,7 +184,7 @@ function Navbar() {
                   <div
                     key={t.name}
                     className="dropdown-item"
-                    onClick={() => handleSelect(`/tag/${t.name}`)}
+                    onClick={() => handleSelect(`/posts?tag=${t.name}`)}
                   >
                     #{t.name}
                   </div>
@@ -243,80 +245,24 @@ function Navbar() {
           )}
         </div>
 
+
+
+
+        
+
         {/* LOGIN */}
-        <div className="login-wrapper" ref={loginRef}>
-          {!isLoggedIn ? (
-            <>
+        <div className="login-wrapper" >
+          
+            
               <button
                 className="login-btn"
-                onClick={() => setShowLoginDropdown((prev) => !prev)}
+                onClick={() => navigate("/login")}
+               
               >
                 Login
               </button>
 
-              {showLoginDropdown && (
-                <div className="login-dropdown">
-                  <div
-                    className="login-dropdown-item"
-                    onClick={() => {
-                      navigate("/login");
-                      setShowLoginDropdown(false);
-                    }}
-                  >
-                    Sign in
-                  </div>
-
-                  <div
-                    className="login-dropdown-item"
-                    onClick={() => {
-                      navigate("/signup");
-                      setShowLoginDropdown(false);
-                    }}
-                  >
-                    Create Account
-                  </div>
-
-                  <div
-                    className="login-dropdown-item"
-                    onClick={fakeLogin}
-                  >
-                    (Dev) Quick Login
-                  </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              <button
-                className="avatar-btn"
-                onClick={() => setShowLoginDropdown((p) => !p)}
-              >
-                AA
-              </button>
-
-              {showLoginDropdown && (
-                <div className="login-dropdown user-menu">
-                  <div className="user-info">
-                    <div className="avatar-large">AA</div>
-                    <div>
-                      <div className="user-name">Amir Aziz</div>
-                      <div className="user-username">@amiraziz</div>
-                    </div>
-                  </div>
-
-                  <div className="menu-item">Bookmarks</div>
-                  <div className="menu-item">My reading history</div>
-                  <div className="menu-item">Account settings</div>
-                  <div className="menu-item">Changelog</div>
-                  <div className="menu-item">Support & feedback</div>
-
-                  <div className="menu-item logout" onClick={fakeLogout}>
-                    Log out
-                  </div>
-                </div>
-              )}
-            </>
-          )}
+              
         </div>
       </div>
     </nav>

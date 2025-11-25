@@ -42,7 +42,7 @@ function App() {
           <Route path="/auth" element={<LoginPage />} />
 
           {/* Posts */}
-          <Route path="/post/:slug" element={<PostDetails />} />
+          <Route path="/posts/:id" element={<PostDetails />} />
           <Route
             path="/create-post"
             element={<CreatePost />}

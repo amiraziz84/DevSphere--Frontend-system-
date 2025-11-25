@@ -1,33 +1,35 @@
-import { Link } from "react-router-dom";
 import "./Sidebar.css";
 
-const Sidebar = () => {
+type SidebarProps = {
+  setActiveTag: (tag: string) => void;
+};
 
+const Sidebar = ({ setActiveTag }: SidebarProps) => {
   const tags: string[] = ["react", "javascript", "nodejs", "webdev", "css"];
 
   return (
     <aside className="sidebar-container">
       {/* Sidebar Menu */}
       <nav className="sidebar-menu">
-        <Link to="/" className="sidebar-item">
+        <a href="/" className="sidebar-item">
           <span>🏠</span> Home
-        </Link>
+        </a>
 
-        <Link to="/create-post" className="sidebar-item">
+        <a href="/create-post" className="sidebar-item">
           <span>📝</span> Write Post
-        </Link>
+        </a>
 
-        <Link to="/bookmarks" className="sidebar-item">
+        <a href="/bookmarks" className="sidebar-item">
           <span>🔖</span> Bookmarks
-        </Link>
+        </a>
 
-        <Link to="/notifications" className="sidebar-item">
+        <a href="/notifications" className="sidebar-item">
           <span>🔔</span> Notifications
-        </Link>
+        </a>
 
-        <Link to="/search" className="sidebar-item">
+        <a href="/search" className="sidebar-item">
           <span>🔎</span> Search
-        </Link>
+        </a>
       </nav>
 
       {/* Tags Section */}
@@ -35,15 +37,14 @@ const Sidebar = () => {
         <h4>Tags</h4>
         <div className="tags-list">
           {tags.map((tag) => (
-            <a
+            <span
               key={tag}
-              href={`https://www.google.com/search?q=${tag}+posts`}
-              target="_blank"
-              rel="noopener noreferrer"
               className="tag-item"
+              onClick={() => setActiveTag(tag)}
+              style={{ cursor: "pointer" }}
             >
               #{tag}
-            </a>
+            </span>
           ))}
         </div>
       </div>

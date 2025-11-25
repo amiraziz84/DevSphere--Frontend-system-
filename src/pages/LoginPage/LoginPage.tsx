@@ -1,6 +1,6 @@
 import { useState, ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../services/api";
+import axios from "axios";
 import "./LoginPage.css";
 
 interface LoginForm {
@@ -45,17 +45,18 @@ const LoginPage = () => {
     try {
       setLoading(true);
 
-      const response = await api.post("/auth/login", {
+      // ⬇⬇ Backend login call
+      const response = await axios.post("http://localhost:3000/auth/login", {
         email: form.email,
         password: form.password,
       });
 
-      // Save JWT in localStorage
+      // ⬇ Save JWT Token
       localStorage.setItem("auth_token", response.data.accessToken);
 
-      alert("Login Successful!");
+      
 
-      navigate("/"); // go to homepage
+      navigate("/");
 
     } catch (error: any) {
       alert(error.response?.data?.message || "Login failed!");

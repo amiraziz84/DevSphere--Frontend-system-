@@ -394,13 +394,7 @@
     font-size: 0.85rem;
   }
 
-  .login-dropdown, .user-menu {
-    right: 0;
-    width: 90vw;
-  }
+  
 
-  .notif-dropdown {
-    width: 95vw;
-    max-width: 95vw;
-  }
+  
 }
