@@ -291,12 +291,12 @@
 
 /* Notifications */
 .notification-wrapper {
-  position: relative; /* dropdown ke liye context */
-  display: inline-block; /* ensures button stays in place */
+  position: relative;
+  display: inline-block;
 }
 
 .notif-count {
-  position: absolute; /* relative to wrapper, not affecting icon position */
+  position: absolute;
   top: 0;
   right: 0;
   transform: translate(50%, -50%);
@@ -310,7 +310,7 @@
 
 .notif-dropdown {
   position: absolute;
-  top: 100%; /* exactly below button */
+  top: 100%;
   right: 0;
   width: 260px;
   max-height: 320px;
@@ -322,7 +322,6 @@
   z-index: 50;
   animation: dropdownFade 0.16s ease-out;
   padding: 0.5rem 0;
-  
 }
 
 .notif-item {
@@ -348,15 +347,15 @@
 }
 
 .view-all {
-  display: flex;             /* flex container banaya */
-  justify-content: center;   /* horizontally center */
-  align-items: center;       /* vertically center */
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-weight: 500;
   cursor: pointer;
   padding: 0.6rem 0;
   border-top: 1px solid var(--border);
   color: var(--primary-color);
-  border-radius: 0 0 12px 12px; /* optional, dropdown bottom rounding */
+  border-radius: 0 0 12px 12px;
   transition: background 0.18s ease;
 }
 
@@ -393,8 +392,4 @@
     padding: 0 0.6rem;
     font-size: 0.85rem;
   }
-
-  
-
-  
 }

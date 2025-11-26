@@ -27,8 +27,10 @@ const LoginPage = () => {
 
   const validate = () => {
     const temp: LoginErrors = {};
+
     if (!form.email.trim()) temp.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(form.email)) temp.email = "Invalid email format";
+    else if (!/\S+@\S+\.\S+/.test(form.email))
+      temp.email = "Invalid email format";
 
     if (!form.password.trim()) temp.password = "Password is required";
     else if (form.password.length < 6)
@@ -45,7 +47,7 @@ const LoginPage = () => {
     try {
       setLoading(true);
 
-      // ⬇⬇ Backend login call
+      // ⬇ Backend login call
       const response = await axios.post("http://localhost:3000/auth/login", {
         email: form.email,
         password: form.password,
@@ -54,7 +56,8 @@ const LoginPage = () => {
       // ⬇ Save JWT Token
       localStorage.setItem("auth_token", response.data.accessToken);
 
-      
+      // ✅ Notify all components (Navbar updates instantly)
+      window.dispatchEvent(new Event("auth-change"));
 
       navigate("/");
 
