@@ -1,6 +1,5 @@
-import { Link, useNavigate } from "react-router-dom";
+import { data, Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import PostCard from "../PostCard/PostCard"; // Agar posts ko dropdown me PostCard se dikhana ho
 import "./Navbar.css";
 
 function Navbar() {
@@ -11,142 +10,114 @@ function Navbar() {
 
   // SEARCH
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState({
-    posts: [],
-    users: [],
-    tags: [],
-  });
+  const [results, setResults] = useState({ posts: [], users: [], tags: [] });
   const [showDropdown, setShowDropdown] = useState(false);
+
+  const typingTimeout = useRef(null);
+  const searchRef = useRef();
+  const dropdownRef = useRef();
+
+  // NOTIFICATIONS
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notificationsRef = useRef();
 
   // LOGIN
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // NOTIFICATIONS
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications] = useState([
-    { id: 1, text: "New follower: @john", time: "2m ago" },
-    { id: 2, text: "Your post got 5 likes", time: "10m ago" },
-    { id: 3, text: "New comment on your post", time: "1h ago" },
-    { id: 4, text: "System update available", time: "Yesterday" },
-  ]);
-
-  const searchRef = useRef(null);
-  const dropdownRef = useRef(null);
-  const notificationsRef = useRef(null);
-  const typingTimeout = useRef(null);
-
-  // LOGIN STATE
+  // Check token on load
+  // LOGIN CHECK
   useEffect(() => {
-    const updateLoginState = () => {
-      const token = localStorage.getItem("auth_token");
-      setIsLoggedIn(!!token);
+    const token = localStorage.getItem("auth_token");
+    if (token) setIsLoggedIn(true);
+
+    const listener = () => {
+      const newToken = localStorage.getItem("auth_token");
+      setIsLoggedIn(!!newToken);
     };
+    window.addEventListener("auth-change", listener);
 
-    updateLoginState();
-    window.addEventListener("auth-change", updateLoginState);
-    return () =>
-      window.removeEventListener("auth-change", updateLoginState);
+    return () => window.removeEventListener("auth-change", listener);
   }, []);
-
-  // THEME
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
-
-  // ---------------- SEARCH ----------------
-  const handleSearch = (text) => {
-    clearTimeout(typingTimeout.current);
-
-    typingTimeout.current = setTimeout(async () => {
-      if (!text.trim()) {
-        setResults({ posts: [], users: [], tags: [] });
-        return;
-      }
-
-      try {
-        const res = await fetch(`http://localhost:3000/search?q=${text}`);
-        const data = await res.json();
-
-        const lowerQuery = text.toLowerCase();
-
-        // FILTER POSTS BY TITLE OR TAGS
-        const matchedPosts = (data.posts || []).filter(
-          (p) =>
-            p.title?.toLowerCase().includes(lowerQuery) ||
-            p.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery))
-        );
-
-        // USERS with username fallback
-        const users = (data.users || []).map((u) => ({
-          ...u,
-          username: u.name || u.email?.split("@")[0],
-        }));
-
-        // TAGS filter
-        const matchedTags = (data.tags || []).filter((t) =>
-          t.toLowerCase().includes(lowerQuery)
-        );
-
-        setResults({
-          posts: matchedPosts,
-          users: users,
-          tags: matchedTags,
-        });
-
-        setShowDropdown(true);
-      } catch (e) {
-        console.log("Search error:", e);
-      }
-    }, 300);
-  };
-
+  // SEARCH — capture input only
   const onChangeSearch = (e) => {
     const value = e.target.value;
     setQuery(value);
     setShowDropdown(true);
-    handleSearch(value);
   };
 
-  const handleSearchSubmit = (e) => {
-    if (e.key === "Enter" && query.trim()) {
-      navigate(`/search?q=${query}`);
+
+
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults({ posts: [], users: [], tags: [] });
       setShowDropdown(false);
+      return;
     }
-  };
 
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);
+
+    typingTimeout.current = setTimeout(async () => {
+      try {
+        const q = query.toLowerCase();
+        const res = await fetch(`http://localhost:3000/search?q=${query}`);
+        const data = await res.json();
+
+        setResults({
+          posts: data.posts || [],
+          users: data.users || [],
+          tags: data.tags || [],
+        });
+
+        setShowDropdown(true);
+      } catch (err) {
+        console.error("Search error:", err);
+      }
+    }, 300);
+  }, [query]);
+
+
+  // Select result
   const handleSelect = (type, item) => {
-    setQuery("");
     setShowDropdown(false);
 
-    if (type === "post") navigate(`/posts/${item.id || item._id}`);
-    if (type === "user") navigate(`/user/${item.username}`);
-    if (type === "tag") navigate(`/posts?tag=${item}`);
+    if (type === "post") navigate(`/posts/${item.id}`);
+    if (type === "user") navigate(`/profile/${item.username}`);
+    if (type === "tag") navigate(`/tag/${item}`);
   };
 
-  // Click Outside
+  // Enter key submit
+  const handleSearchSubmit = (e) => {
+    if (e.key === "Enter") {
+  if (query.trim()) {
+    navigate(`/search?q=${query}`);
+    setShowDropdown(false);
+  }
+}
+  };
+
+  // Click Outside Close
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (e) => {
       if (
         searchRef.current &&
-        !searchRef.current.contains(event.target) &&
-        !dropdownRef.current?.contains(event.target)
+        !searchRef.current.contains(e.target) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target)
       ) {
         setShowDropdown(false);
       }
 
       if (
         notificationsRef.current &&
-        !notificationsRef.current.contains(event.target)
+        !notificationsRef.current.contains(e.target)
       ) {
         setShowNotifications(false);
       }
     };
 
-    const handleEsc = (event) => {
-      if (event.key === "Escape") {
-        setShowDropdown(false);
-        setShowNotifications(false);
-      }
+    const handleEsc = (e) => {
+      if (e.key === "Escape") setShowDropdown(false);
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -167,14 +138,14 @@ function Navbar() {
 
   return (
     <nav className="navbar">
+
       {/* LEFT */}
       <div className="nav-left">
-        <Link to="/" className="logo">
-          DevSphere
-        </Link>
+        <Link to="/" className="logo">DevSphere</Link>
       </div>
 
       {/* SEARCH */}
+
       <div className="nav-middle" ref={searchRef}>
         <input
           type="text"
@@ -186,22 +157,23 @@ function Navbar() {
           onFocus={() => query && setShowDropdown(true)}
         />
 
-        {showDropdown && query && (
+        {showDropdown && (
           <div className="search-dropdown" ref={dropdownRef}>
+
             {/* POSTS */}
             {results.posts.length > 0 && (
-              <div>
+              <>
                 <strong>Posts</strong>
                 {results.posts.map((p) => (
                   <div
-                    key={p.id || p._id}
+                    key={p.id}
                     className="dropdown-item"
                     onClick={() => handleSelect("post", p)}
                   >
                     {p.title}
                   </div>
                 ))}
-              </div>
+              </>
             )}
 
             {/* USERS */}
@@ -210,7 +182,7 @@ function Navbar() {
                 <strong>Users</strong>
                 {results.users.map((u) => (
                   <div
-                    key={u.id || u._id}
+                    key={u.id}
                     className="dropdown-item"
                     onClick={() => handleSelect("user", u)}
                   >
@@ -248,10 +220,7 @@ function Navbar() {
 
       {/* RIGHT */}
       <div className="nav-right">
-        <button
-          className="circle-btn"
-          onClick={() => navigate("/create-post")}
-        >
+        <button className="circle-btn" onClick={() => navigate("/create-post")}>
           ✏️
         </button>
 
@@ -262,6 +231,7 @@ function Navbar() {
           {theme === "light" ? "🌙" : "☀️"}
         </button>
 
+        {/* Notifications */}
         <div className="notification-wrapper" ref={notificationsRef}>
           <button
             className="circle-btn notification-btn"
@@ -295,6 +265,7 @@ function Navbar() {
           )}
         </div>
 
+        {/* Login */}
         <div className="login-wrapper">
           {isLoggedIn ? (
             <button className="login-btn" onClick={handleLogout}>

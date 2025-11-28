@@ -19,12 +19,12 @@ const SearchPage = () => {
       setLoading(true);
 
       try {
-        let url = "http://localhost:3000/posts";
+        let url = "http://localhost:3000/search";
 
         if (tag) {
           url += `?tag=${tag}`;
         } else if (query) {
-          url += `?search=${query}`;
+          url += `?q=${query}`;
         }
 
         const res = await axios.get(url, {
@@ -33,7 +33,7 @@ const SearchPage = () => {
           },
         });
 
-        setPosts(res.data.data || []);
+        setPosts(res.data.posts || []);
       } catch (e) {
         console.error("Failed to load posts:", e);
       } finally {

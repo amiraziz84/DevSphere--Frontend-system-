@@ -1,3 +1,4 @@
+// src/pages/HomePage/HomePage.jsx
 import { useState, useEffect } from "react";
 import "./HomePage.css";
 import PostCard from "../../components/PostCard/PostCard";
@@ -6,31 +7,33 @@ import api from "../../services/api";
 
 const HomePage = () => {
   const [posts, setPosts] = useState([]);
-  const [filteredPosts, setFilteredPosts] = useState([]);
   const [activeTag, setActiveTag] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // 🔥 Auto-computed filtered posts (NO STATE, NO RE-RENDER LOOP)
+  const filteredPosts = activeTag
+    ? posts.filter((post) => post?.tags?.includes(activeTag))
+    : posts;
+
   // 🔥 Fetch Posts from Backend
   const fetchPosts = async () => {
-    try {
-      const res = await api.get("/posts");
+  try {
+    const res = await api.get("/posts");
 
-      console.log("API RESPONSE =>", res.data);
+    console.log("API RESPONSE =>", res.data);
 
-      const postsArray = Array.isArray(res.data?.data)
-        ? res.data.data
-        : [];
+    // ✅ Adjust this depending on your backend
+    const postsArray = Array.isArray(res.data?.data) ? res.data.data : [];
 
-      setPosts(postsArray);
-      setFilteredPosts(postsArray);
-    } catch (err) {
-      console.error("Failed to fetch posts:", err);
-      setPosts([]);
-      setFilteredPosts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setPosts(postsArray);
+  } catch (err) {
+    console.error("Failed to fetch posts:", err);
+    setPosts([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchPosts();
@@ -39,15 +42,11 @@ const HomePage = () => {
   // 🔥 Tag Filter Handler – Used everywhere
   const handleTagClick = (tag) => {
     setActiveTag(tag);
-    setFilteredPosts(
-      posts.filter((post) => post?.tags?.includes(tag))
-    );
   };
 
   // ✔ Clear Filter
   const clearFilter = () => {
     setActiveTag("");
-    setFilteredPosts(posts);
   };
 
   return (
@@ -57,9 +56,7 @@ const HomePage = () => {
       <main className="feed-area">
         {loading && <p>Loading posts...</p>}
 
-        {!loading && filteredPosts.length === 0 && (
-          <p>No posts found...</p>
-        )}
+        {!loading && filteredPosts.length === 0 && <p>No posts found...</p>}
 
         {filteredPosts.map((post) => (
           <PostCard
