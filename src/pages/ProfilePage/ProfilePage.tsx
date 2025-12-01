@@ -1,41 +1,57 @@
+import { useEffect, useState } from "react";
 import "./ProfilePage.css";
 import PostCard from "../../components/PostCard/PostCard";
+import api from "../../services/api";
 
-const ProfilePage = () => {
-  // Mock user data
-  const user = {
-    username: "m_amir",
-    name: "Muhammad Amir Aziz",
-    bio: "Fullstack Developer | MERN Stack | Open Source Enthusiast",
-    avatar: "https://i.pravatar.cc/150?img=12",
-    followers: 120,
-    following: 75,
-    posts: [
-      {
-        title: "React Best Practices",
-        content: "Some tips for writing clean React code...",
-        date: "Nov 16, 2025",
-        tags: ["react", "javascript"],
-        likes: 10,
-        comments: 2,
-      },
-      {
-        title: "Node.js Tips",
-        content: "Efficient Node.js patterns...",
-        date: "Nov 15, 2025",
-        tags: ["nodejs", "backend"],
-        likes: 8,
-        comments: 1,
-      },
-    ],
-  };
+interface UserProfile {
+  username: string;
+  name: string;
+  bio: string;
+  avatar: string;
+  followers: number;
+  following: number;
+}
+
+const ProfilePage: React.FC = () => {
+  const [user, setUser] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await api.get("/users/me");
+
+        // Backend se profilePic ka proper URL bana rahe hain
+        const profilePic = res.data.profilePic
+          ? `http://localhost:3000${res.data.profilePic}`
+          : "http://localhost:3000/uploads/profile/default.png";
+
+        const userData: UserProfile = {
+          username: res.data.username,
+          name: res.data.name,
+          bio: res.data.bio || "No bio added",
+          avatar: profilePic,
+          followers: res.data.followers || 0,
+          following: res.data.following || 0,
+        };
+
+        setUser(userData);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  if (!user) return <p>Loading...</p>;
 
   return (
     <div className="profile-container">
-      {/* Left Sidebar - User Info */}
+      {/* Left Sidebar */}
       <aside className="profile-sidebar">
         <div className="profile-card">
           <img src={user.avatar} alt="avatar" className="avatar" />
+
           <h2>{user.name}</h2>
           <p className="username">@{user.username}</p>
           <p className="bio">{user.bio}</p>
@@ -43,7 +59,6 @@ const ProfilePage = () => {
           <div className="follow-info">
             <span>Followers: {user.followers}</span>
             <span>Following: {user.following}</span>
-            <span>Posts: {user.posts.length}</span>
           </div>
         </div>
       </aside>
@@ -51,12 +66,10 @@ const ProfilePage = () => {
       {/* Main Feed */}
       <main className="profile-feed">
         <h2>Posts by {user.username}</h2>
-        {user.posts.map((post, idx) => (
-          <PostCard key={idx} post={post} />
-        ))}
+        <p>Coming soon — Connect posts API here</p>
       </main>
 
-      {/* Right Sidebar (optional) */}
+      {/* Right Sidebar */}
       <aside className="profile-right-sidebar">
         <div className="widget">
           <h3>Top Tags</h3>
