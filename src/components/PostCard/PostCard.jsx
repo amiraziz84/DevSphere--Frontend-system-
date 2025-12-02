@@ -1,3 +1,4 @@
+// src/components/PostCard/PostCard.jsx
 import "./PostCard.css";
 import ReactionsFeature from "../../features/reactions/ReactionsFeature";
 import { useNavigate } from "react-router-dom";
@@ -8,9 +9,7 @@ import React from "react";
    MEMOIZED BANNER COMPONENT
 --------------------------------*/
 const BannerImage = React.memo(({ url, title }) => {
-  const finalUrl = url.startsWith("http")
-    ? url
-    : `${BASE_URL}${url}`;
+  const finalUrl = url.startsWith("http") ? url : `${BASE_URL}${url}`;
 
   return (
     <img
@@ -26,16 +25,17 @@ const BannerImage = React.memo(({ url, title }) => {
   );
 });
 
+/* ------------------------------
+   POST CARD COMPONENT
+--------------------------------*/
 const PostCard = ({ post }) => {
   const navigate = useNavigate();
-
   const postId = post.id || post._id;
 
-  // 👉 STABLE IMAGE URL
-  const rawImageUrl =
-    post.bannerUrl || post.image || "/uploads/default.png";
+  // Stable banner image URL
+  const rawImageUrl = post.bannerUrl || post.image || "/uploads/default.png";
 
-  // Date format
+  // Format post date
   const formattedDate = post.date
     ? new Date(post.date).toLocaleDateString("en-US", {
         month: "short",
@@ -44,35 +44,40 @@ const PostCard = ({ post }) => {
       })
     : "Unknown Date";
 
+  // Author avatar URL handling
+  const authorAvatarUrl = post.author?.avatar
+    ? post.author.avatar.startsWith("http")
+      ? post.author.avatar
+      : `${BASE_URL}${post.author.avatar}`
+    : post.authorAvatar
+    ? post.authorAvatar.startsWith("http")
+      ? post.authorAvatar
+      : `${BASE_URL}${post.authorAvatar}`
+    : "https://i.pravatar.cc/40"; // fallback
+
   return (
     <div className="post-card">
-      
       {/* Header */}
       <div className="post-header">
         <div className="author-info">
           <img
-            src={
-              post.author?.avatar ||
-              post.authorAvatar ||
-              "https://i.pravatar.cc/40"
-            }
+            src={authorAvatarUrl}
             alt={post.author?.name || "Author"}
             className="author-avatar"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "https://i.pravatar.cc/40";
+            }}
           />
-
           <div>
-            <h4 className="author-name">
-              {post.author?.name || "Unknown User"}
-            </h4>
+            <h4 className="author-name">{post.author?.name || "Unknown User"}</h4>
             <span className="post-date">{formattedDate}</span>
           </div>
         </div>
       </div>
 
-      {/* Memoized Banner Image -> No Blinking */}
-      {(post.bannerUrl || post.image) && (
-        <BannerImage url={rawImageUrl} title={post.title} />
-      )}
+      {/* Memoized Banner Image */}
+      {(post.bannerUrl || post.image) && <BannerImage url={rawImageUrl} title={post.title} />}
 
       {/* Title & Snippet */}
       <div
@@ -80,7 +85,6 @@ const PostCard = ({ post }) => {
         style={{ cursor: "pointer" }}
       >
         <h3 className="post-title">{post.title}</h3>
-
         <p className="post-snippet">
           {post.content?.slice(0, 150) || ""}
           {post.content && post.content.length > 150 ? "..." : ""}

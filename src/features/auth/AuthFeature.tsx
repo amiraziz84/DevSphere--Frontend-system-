@@ -8,6 +8,7 @@ import "./AuthFeature.css";
 type User = {
   username: string;
   role: "user" | "moderator" | "admin";
+  
 };
 
 interface AuthContextType {
