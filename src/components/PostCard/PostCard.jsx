@@ -45,16 +45,15 @@ const PostCard = ({ post }) => {
     : "Unknown Date";
 
   // Author avatar URL handling
-  const authorAvatarUrl = post.author?.avatar
-    ? post.author.avatar.startsWith("http")
-      ? post.author.avatar
-      : `${BASE_URL}${post.author.avatar}`
-    : post.authorAvatar
-    ? post.authorAvatar.startsWith("http")
-      ? post.authorAvatar
-      : `${BASE_URL}${post.authorAvatar}`
-    : "https://i.pravatar.cc/40"; // fallback
+  const authorAvatarUrl =
+  post.author?.profilePic
+    ? post.author.profilePic.startsWith("http")
+      ? post.author.profilePic
+      : `${BASE_URL}${post.author.profilePic}`
+    : "http://localhost:3000/uploads/profile/profile_a825ac6a-9181-4bc4-82d4-8f8395b22ec9.jpeg";
 
+
+    
   return (
     <div className="post-card">
       {/* Header */}

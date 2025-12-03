@@ -18,9 +18,13 @@ const HomePage = () => {
   // 🔥 Fetch Posts from Backend
   const fetchPosts = async () => {
   try {
-    const res = await api.get("/posts");
+    const token = localStorage.getItem("token");
 
-    console.log("API RESPONSE =>", res.data);
+const res = await api.get("/posts", {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
 
     // ✅ Adjust this depending on your backend
     const postsArray = Array.isArray(res.data?.data) ? res.data.data : [];

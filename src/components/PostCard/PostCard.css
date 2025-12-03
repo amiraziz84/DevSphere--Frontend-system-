@@ -7,13 +7,55 @@
   transition: 0.2s ease;
   cursor: pointer;
 }
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.author-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e5e5e5;
+  background: #f2f2f2;
+  transition: 0.2s ease;
+}
+
+.author-avatar:hover {
+  transform: scale(1.05);
+}
+
+.author-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary, #222);
+  margin: 0;
+}
+
+.post-date {
+  font-size: 13px;
+  color: var(--text-secondary, #777);
+}
 
 .post-card:hover {
   transform: translateY(-3px);
 }
 
 /* ---------------- IMAGE FIX (NO FLICKER) ---------------- */
-
+.image-container {
+  width: 100%;
+  height: 320px;
+  border: 1px solid black;
+  margin-bottom: 25px;
+}
 .post-main-image {
   width: 100%;
   height: 320px;            /* FIXED HEIGHT — prevents layout jump */

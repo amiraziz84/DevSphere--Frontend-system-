@@ -4,6 +4,7 @@ import "./Navbar.css";
 
 function Navbar() {
   const navigate = useNavigate();
+  
 
   // THEME
   const [theme, setTheme] = useState("light");

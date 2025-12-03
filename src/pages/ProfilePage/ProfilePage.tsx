@@ -22,8 +22,8 @@ const ProfilePage: React.FC = () => {
 
         // Backend se profilePic ka proper URL bana rahe hain
         const profilePic = res.data.profilePic
-          ? `http://localhost:3000${res.data.profilePic}`
-          : "http://localhost:3000/uploads/profile/default.png";
+        ? `http://localhost:3000${res.data.profilePic.replace(/^\/+/, '')}`
+        : "http://localhost:3000/uploads/profile/default.png";
 
         const userData: UserProfile = {
           username: res.data.username,
