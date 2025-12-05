@@ -1,19 +1,17 @@
 import axios from "axios";
 
-const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
+export const BASE_URL = import.meta.env.VITE_API_URL;
+
+const api = axios.create({
+  baseURL: BASE_URL,
 });
 
-// Add JWT token to every request if available
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token && config.headers) {
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("auth_token");
+  if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-export default apiClient;
+export default api;

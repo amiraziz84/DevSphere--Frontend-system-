@@ -12,7 +12,8 @@ const BannerImage = React.memo(({ url, title }) => {
   const finalUrl = url.startsWith("http") ? url : `${BASE_URL}${url}`;
 
   return (
-    <img
+    <div className="image-container">
+      <img
       src={finalUrl}
       alt={title || "Post image"}
       className="post-main-image"
@@ -22,6 +23,7 @@ const BannerImage = React.memo(({ url, title }) => {
         e.target.src = `${BASE_URL}/uploads/default.png`;
       }}
     />
+    </div>
   );
 });
 
