@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import PostCard from "../../components/PostCard/PostCard";
+import { BASE_URL } from "../../services/api";
 import "./SearchPage.css";
 
 const SearchPage = () => {
@@ -19,7 +20,7 @@ const SearchPage = () => {
       setLoading(true);
 
       try {
-        let url = "http://localhost:3000/search";
+        let url = `${BASE_URL}/search`;
 
         if (tag) {
           url += `?tag=${tag}`;

@@ -1,43 +1,34 @@
-// src/components/PostCard/PostCard.jsx
 import "./PostCard.css";
 import ReactionsFeature from "../../features/reactions/ReactionsFeature";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../services/api";
 import React from "react";
 
-/* ------------------------------
-   MEMOIZED BANNER COMPONENT
---------------------------------*/
 const BannerImage = React.memo(({ url, title }) => {
   const finalUrl = url.startsWith("http") ? url : `${BASE_URL}${url}`;
 
   return (
     <div className="image-container">
       <img
-      src={finalUrl}
-      alt={title || "Post image"}
-      className="post-main-image"
-      loading="lazy"
-      onError={(e) => {
-        e.target.onerror = null;
-        e.target.src = `${BASE_URL}/uploads/default.png`;
-      }}
-    />
+        src={finalUrl}
+        alt={title || "Post image"}
+        className="post-main-image"
+        loading="lazy"
+        onError={(e) => {
+          e.target.onerror = null;
+          e.target.src = `${BASE_URL}/uploads/default.png`;
+        }}
+      />
     </div>
   );
 });
 
-/* ------------------------------
-   POST CARD COMPONENT
---------------------------------*/
 const PostCard = ({ post }) => {
   const navigate = useNavigate();
   const postId = post.id || post._id;
 
-  // Stable banner image URL
   const rawImageUrl = post.bannerUrl || post.image || "/uploads/default.png";
 
-  // Format post date
   const formattedDate = post.date
     ? new Date(post.date).toLocaleDateString("en-US", {
         month: "short",
@@ -46,19 +37,14 @@ const PostCard = ({ post }) => {
       })
     : "Unknown Date";
 
-  // Author avatar URL handling
-  const authorAvatarUrl =
-  post.author?.profilePic
+  const authorAvatarUrl = post.author?.profilePic
     ? post.author.profilePic.startsWith("http")
       ? post.author.profilePic
       : `${BASE_URL}${post.author.profilePic}`
-    : "http://localhost:3000/uploads/profile/profile_a825ac6a-9181-4bc4-82d4-8f8395b22ec9.jpeg";
+    : `${BASE_URL}/uploads/profile/default.png`;
 
-
-    
   return (
     <div className="post-card">
-      {/* Header */}
       <div className="post-header">
         <div className="author-info">
           <img
@@ -67,7 +53,7 @@ const PostCard = ({ post }) => {
             className="author-avatar"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = "https://i.pravatar.cc/40";
+              e.target.src = `${BASE_URL}/uploads/profile/profile_a825ac6a-9181-4bc4-82d4-8f8395b22ec9.jpeg`;
             }}
           />
           <div>
@@ -77,10 +63,10 @@ const PostCard = ({ post }) => {
         </div>
       </div>
 
-      {/* Memoized Banner Image */}
-      {(post.bannerUrl || post.image) && <BannerImage url={rawImageUrl} title={post.title} />}
+      {(post.bannerUrl || post.image) && (
+        <BannerImage url={rawImageUrl} title={post.title} />
+      )}
 
-      {/* Title & Snippet */}
       <div
         onClick={() => navigate(`/posts/${postId}`)}
         style={{ cursor: "pointer" }}
@@ -92,7 +78,6 @@ const PostCard = ({ post }) => {
         </p>
       </div>
 
-      {/* Reactions */}
       <ReactionsFeature
         postId={postId}
         initialReactions={{
@@ -103,7 +88,6 @@ const PostCard = ({ post }) => {
         }}
       />
 
-      {/* Footer */}
       <div className="post-reactions">
         <span>💬 {post.comments ?? 0}</span>
       </div>

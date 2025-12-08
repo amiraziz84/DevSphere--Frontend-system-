@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import "./ProfilePage.css";
-import PostCard from "../../components/PostCard/PostCard";
-import api from "../../services/api";
+import api, { BASE_URL } from "../../services/api";
 
 interface UserProfile {
   username: string;
@@ -20,10 +19,9 @@ const ProfilePage: React.FC = () => {
       try {
         const res = await api.get("/users/me");
 
-        // Backend se profilePic ka proper URL bana rahe hain
         const profilePic = res.data.profilePic
-        ? `http://localhost:3000${res.data.profilePic.replace(/^\/+/, '')}`
-        : "http://localhost:3000/uploads/profile/default.png";
+          ? `${BASE_URL}${res.data.profilePic.replace(/^\/+/, "")}`
+          : `${BASE_URL}/uploads/profile/default.png`;
 
         const userData: UserProfile = {
           username: res.data.username,
@@ -47,7 +45,6 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className="profile-container">
-      {/* Left Sidebar */}
       <aside className="profile-sidebar">
         <div className="profile-card">
           <img src={user.avatar} alt="avatar" className="avatar" />
@@ -63,13 +60,11 @@ const ProfilePage: React.FC = () => {
         </div>
       </aside>
 
-      {/* Main Feed */}
       <main className="profile-feed">
         <h2>Posts by {user.username}</h2>
         <p>Coming soon — Connect posts API here</p>
       </main>
 
-      {/* Right Sidebar */}
       <aside className="profile-right-sidebar">
         <div className="widget">
           <h3>Top Tags</h3>
