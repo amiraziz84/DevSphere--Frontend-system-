@@ -1,10 +1,10 @@
-import { data, Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
+import api from "../../services/api"; // Axios instance with BASE_URL
 import "./Navbar.css";
 
 function Navbar() {
   const navigate = useNavigate();
-  
 
   // THEME
   const [theme, setTheme] = useState("light");
@@ -26,8 +26,7 @@ function Navbar() {
   // LOGIN
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Check token on load
-  // LOGIN CHECK
+  // Check token on load and subscribe to auth changes
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
     if (token) setIsLoggedIn(true);
@@ -36,19 +35,18 @@ function Navbar() {
       const newToken = localStorage.getItem("auth_token");
       setIsLoggedIn(!!newToken);
     };
-    window.addEventListener("auth-change", listener);
 
+    window.addEventListener("auth-change", listener);
     return () => window.removeEventListener("auth-change", listener);
   }, []);
+
   // SEARCH — capture input only
   const onChangeSearch = (e) => {
-    const value = e.target.value;
-    setQuery(value);
+    setQuery(e.target.value);
     setShowDropdown(true);
   };
 
-
-
+  // Fetch search results
   useEffect(() => {
     if (!query.trim()) {
       setResults({ posts: [], users: [], tags: [] });
@@ -60,9 +58,8 @@ function Navbar() {
 
     typingTimeout.current = setTimeout(async () => {
       try {
-        const q = query.toLowerCase();
-        const res = await fetch(`http://localhost:3000/search?q=${query}`);
-        const data = await res.json();
+        const res = await api.get(`/search?q=${query}`);
+        const data = res.data;
 
         setResults({
           posts: data.posts || [],
@@ -77,11 +74,9 @@ function Navbar() {
     }, 300);
   }, [query]);
 
-
-  // Select result
+  // Select search result
   const handleSelect = (type, item) => {
     setShowDropdown(false);
-
     if (type === "post") navigate(`/posts/${item.id}`);
     if (type === "user") navigate(`/profile/${item.username}`);
     if (type === "tag") navigate(`/tag/${item}`);
@@ -89,15 +84,13 @@ function Navbar() {
 
   // Enter key submit
   const handleSearchSubmit = (e) => {
-    if (e.key === "Enter") {
-  if (query.trim()) {
-    navigate(`/search?q=${query}`);
-    setShowDropdown(false);
-  }
-}
+    if (e.key === "Enter" && query.trim()) {
+      navigate(`/search?q=${query}`);
+      setShowDropdown(false);
+    }
   };
 
-  // Click Outside Close
+  // Click outside to close dropdowns
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -139,14 +132,14 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-
       {/* LEFT */}
       <div className="nav-left">
-        <Link to="/" className="logo">DevSphere</Link>
+        <Link to="/" className="logo">
+          DevSphere
+        </Link>
       </div>
 
       {/* SEARCH */}
-
       <div className="nav-middle" ref={searchRef}>
         <input
           type="text"
@@ -160,7 +153,6 @@ function Navbar() {
 
         {showDropdown && (
           <div className="search-dropdown" ref={dropdownRef}>
-
             {/* POSTS */}
             {results.posts.length > 0 && (
               <>
@@ -221,7 +213,10 @@ function Navbar() {
 
       {/* RIGHT */}
       <div className="nav-right">
-        <button className="circle-btn" onClick={() => navigate("/create-post")}>
+        <button
+          className="circle-btn"
+          onClick={() => navigate("/create-post")}
+        >
           ✏️
         </button>
 

@@ -1,7 +1,7 @@
 import { useState, ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import "./LoginPage.css";
+import api from "../../services/api"; // ✅ updated to use your api instance
 
 interface LoginForm {
   email: string;
@@ -47,8 +47,8 @@ const LoginPage = () => {
     try {
       setLoading(true);
 
-      // ⬇ Backend login call
-      const response = await axios.post("http://localhost:3000/auth/login", {
+      // ⬇ Use api instance instead of hardcoded localhost
+      const response = await api.post("/auth/login", {
         email: form.email,
         password: form.password,
       });
@@ -71,7 +71,7 @@ const LoginPage = () => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2 className="login-title">Welcome Back 👋</h2>
+        <h2 className="login-title">Welcome Back</h2>
         <p className="login-subtitle">Login to continue to DevSphere</p>
 
         <form onSubmit={handleLogin}>

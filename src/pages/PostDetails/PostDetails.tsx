@@ -1,22 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../services/api"; // axios instance
 import "./PostDetails.css";
 
 const PostDetails = () => {
   const { id } = useParams();
-  const [post, setPost] = useState(null);
+  const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/posts/${id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-          },
-        });
-
+        const res = await api.get(`/posts/${id}`);
         setPost(res.data);
       } catch (e) {
         console.error("Failed to fetch post:", e);
@@ -49,7 +44,7 @@ const PostDetails = () => {
         </div>
 
         <div className="post-tags">
-          {post.tags?.map((tag, idx) => (
+          {post.tags?.map((tag: string, idx: number) => (
             <span key={idx} className="tag">
               #{tag}
             </span>
@@ -57,9 +52,7 @@ const PostDetails = () => {
         </div>
       </div>
 
-      <div className="post-content">
-        {post.content}
-      </div>
+      <div className="post-content">{post.content}</div>
     </div>
   );
 };
