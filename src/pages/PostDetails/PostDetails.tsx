@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import api from "../../services/api"; // axios instance
 import "./PostDetails.css";
 
+const BACKEND_URL = "https://ravishing-nature-production-31c7.up.railway.app";
+
 const PostDetails = () => {
   const { id } = useParams();
   const [post, setPost] = useState<any>(null);
@@ -33,7 +35,11 @@ const PostDetails = () => {
 
         <div className="post-author">
           <img
-            src={post.author?.avatar || "https://i.pravatar.cc/80"}
+            src={
+              post.author?.profilePic
+                ? `${BACKEND_URL}${post.author.profilePic}`
+                : "https://i.pravatar.cc/80"
+            }
             className="avatar"
             alt="author"
           />

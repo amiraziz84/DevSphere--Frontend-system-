@@ -1,7 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import api from "../../services/api"; // Axios instance with BASE_URL
+import api from "../../services/api"; // Axios instance
 import "./Navbar.css";
+
+const BACKEND_URL = "https://ravishing-nature-production-31c7.up.railway.app";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -179,6 +181,15 @@ function Navbar() {
                     className="dropdown-item"
                     onClick={() => handleSelect("user", u)}
                   >
+                    <img
+                      src={
+                        u.profilePic
+                          ? `${BACKEND_URL}${u.profilePic}`
+                          : "/default-avatar.png"
+                      }
+                      alt="avatar"
+                      className="dropdown-avatar"
+                    />
                     @{u.username}
                   </div>
                 ))}
