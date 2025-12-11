@@ -50,7 +50,7 @@ const PostCard = ({ post }) => {
     ? post.author.profilePic.startsWith("http")
       ? post.author.profilePic
       : `${BASE_URL}${post.author.profilePic}`
-    : `${BASE_URL}/uploads/profile/default.png`;
+    : `${BASE_URL}/uploads/profile/profile_undefined.png`;
 
   return (
     <div className="post-card">
