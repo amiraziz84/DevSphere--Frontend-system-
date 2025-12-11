@@ -180,7 +180,8 @@ function Navbar() {
                       src={
                         u.profilePic
                           ? `${BASE_URL}${u.profilePic}`
-                          : `${BASE_URL}/uploads/profile/default.png`
+                          // : `${BASE_URL}/uploads/profile/default.png`
+                           : null
                       }
                       alt="avatar"
                       className="dropdown-avatar"

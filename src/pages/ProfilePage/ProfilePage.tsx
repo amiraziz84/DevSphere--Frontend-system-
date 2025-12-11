@@ -24,7 +24,8 @@ const ProfilePage: React.FC = () => {
         // 🔥 FIXED: Always generate correct image URL
         const profilePic = rawPic
           ? `${BASE_URL}/${rawPic.replace(/^\/+/, "")}`
-          : `${BASE_URL}/uploads/profile/default.png`;
+          // : `${BASE_URL}/uploads/profile/default.png`;
+           : "";
 
         const userData: UserProfile = {
           username: res.data.username,
