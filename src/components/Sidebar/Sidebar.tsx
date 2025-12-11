@@ -1,8 +1,9 @@
+import { Link } from "react-router-dom";
 import "./Sidebar.css";
 
-type SidebarProps = {
+interface SidebarProps {
   setActiveTag: (tag: string) => void;
-};
+}
 
 const Sidebar = ({ setActiveTag }: SidebarProps) => {
   const tags: string[] = ["react", "javascript", "nodejs", "webdev", "css"];
@@ -11,25 +12,25 @@ const Sidebar = ({ setActiveTag }: SidebarProps) => {
     <aside className="sidebar-container">
       {/* Sidebar Menu */}
       <nav className="sidebar-menu">
-        <a href="/" className="sidebar-item">
+        <Link to="/" className="sidebar-item">
           <span>🏠</span> Home
-        </a>
+        </Link>
 
-        <a href="/create-post" className="sidebar-item">
+        <Link to="/create-post" className="sidebar-item">
           <span>📝</span> Write Post
-        </a>
+        </Link>
 
-        <a href="/bookmarks" className="sidebar-item">
+        <Link to="/bookmarks" className="sidebar-item">
           <span>🔖</span> Bookmarks
-        </a>
+        </Link>
 
-        <a href="/notifications" className="sidebar-item">
+        <Link to="/notifications" className="sidebar-item">
           <span>🔔</span> Notifications
-        </a>
+        </Link>
 
-        <a href="/search" className="sidebar-item">
+        <Link to="/search" className="sidebar-item">
           <span>🔎</span> Search
-        </a>
+        </Link>
       </nav>
 
       {/* Tags Section */}

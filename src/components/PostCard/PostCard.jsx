@@ -37,10 +37,11 @@ const PostCard = ({ post }) => {
       })
     : "Unknown Date";
 
+  // FIXED: Profile Pic URL (no white blink, no broken image)
   const authorAvatarUrl = post.author?.profilePic
     ? post.author.profilePic.startsWith("http")
       ? post.author.profilePic
-      : `${BASE_URL}${post.author.profilePic}`
+      : `${BASE_URL}${post.author.profilePic.replace("//", "/")}`
     : `${BASE_URL}/uploads/profile/default.png`;
 
   return (
@@ -53,11 +54,13 @@ const PostCard = ({ post }) => {
             className="author-avatar"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = `${BASE_URL}/uploads/profile/profile_a825ac6a-9181-4bc4-82d4-8f8395b22ec9.jpeg`;
+              e.target.src = `${BASE_URL}/uploads/profile/default.png`;
             }}
           />
           <div>
-            <h4 className="author-name">{post.author?.name || "Unknown User"}</h4>
+            <h4 className="author-name">
+              {post.author?.name || "Unknown User"}
+            </h4>
             <span className="post-date">{formattedDate}</span>
           </div>
         </div>

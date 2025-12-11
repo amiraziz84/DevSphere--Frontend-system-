@@ -1,9 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import api from "../../services/api"; // Axios instance
+import api, { BASE_URL } from "../../services/api"; // Axios instance + URL
 import "./Navbar.css";
-
-const BACKEND_URL = "https://ravishing-nature-production-31c7.up.railway.app";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -28,10 +26,9 @@ function Navbar() {
   // LOGIN
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Check token on load and subscribe to auth changes
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
-    if (token) setIsLoggedIn(true);
+    setIsLoggedIn(!!token);
 
     const listener = () => {
       const newToken = localStorage.getItem("auth_token");
@@ -42,13 +39,13 @@ function Navbar() {
     return () => window.removeEventListener("auth-change", listener);
   }, []);
 
-  // SEARCH — capture input only
+  // SEARCH input change
   const onChangeSearch = (e) => {
     setQuery(e.target.value);
     setShowDropdown(true);
   };
 
-  // Fetch search results
+  // SEARCH fetch
   useEffect(() => {
     if (!query.trim()) {
       setResults({ posts: [], users: [], tags: [] });
@@ -76,15 +73,14 @@ function Navbar() {
     }, 300);
   }, [query]);
 
-  // Select search result
   const handleSelect = (type, item) => {
     setShowDropdown(false);
+
     if (type === "post") navigate(`/posts/${item.id}`);
     if (type === "user") navigate(`/profile/${item.username}`);
     if (type === "tag") navigate(`/tag/${item}`);
   };
 
-  // Enter key submit
   const handleSearchSubmit = (e) => {
     if (e.key === "Enter" && query.trim()) {
       navigate(`/search?q=${query}`);
@@ -92,7 +88,7 @@ function Navbar() {
     }
   };
 
-  // Click outside to close dropdowns
+  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -125,7 +121,6 @@ function Navbar() {
     };
   }, []);
 
-  // Logout
   const handleLogout = () => {
     localStorage.removeItem("auth_token");
     window.dispatchEvent(new Event("auth-change"));
@@ -184,8 +179,8 @@ function Navbar() {
                     <img
                       src={
                         u.profilePic
-                          ? `${BACKEND_URL}${u.profilePic}`
-                          : "/default-avatar.png"
+                          ? `${BASE_URL}${u.profilePic}`
+                          : `${BASE_URL}/uploads/profile/default.png`
                       }
                       alt="avatar"
                       className="dropdown-avatar"
@@ -224,10 +219,7 @@ function Navbar() {
 
       {/* RIGHT */}
       <div className="nav-right">
-        <button
-          className="circle-btn"
-          onClick={() => navigate("/create-post")}
-        >
+        <button className="circle-btn" onClick={() => navigate("/create-post")}>
           ✏️
         </button>
 

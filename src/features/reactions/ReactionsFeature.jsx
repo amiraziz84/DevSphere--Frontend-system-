@@ -2,30 +2,21 @@ import { useState, useEffect } from "react";
 import api from "../../services/api";
 import "./ReactionsFeature.css";
 
-type ReactionType = "LIKE" | "LOVE";
-
-interface ReactionsProps {
-  postId?: string;
-  commentId?: string;
-}
-
-interface ReactionResponse {
-  type: ReactionType;
-  isUserReaction?: boolean;
-}
-
-const reactionIcons: Record<ReactionType, string> = {
+const reactionIcons = {
   LIKE: "👍",
   LOVE: "❤️",
 };
 
-const ReactionsFeature = ({ postId, commentId }: ReactionsProps) => {
-  const [reactions, setReactions] = useState<Record<ReactionType, number>>({
+const ReactionsFeature = ({ postId, commentId }) => {
+  const [reactions, setReactions] = useState({
     LIKE: 0,
     LOVE: 0,
   });
 
-  const [userReaction, setUserReaction] = useState<ReactionType | null>(null);
+  const [userReaction, setUserReaction] = useState(null);
+
+  // Logged-in user ID
+  const userId = localStorage.getItem("user_id");
 
   // ===============================
   // LOAD EXISTING REACTIONS
@@ -41,15 +32,16 @@ const ReactionsFeature = ({ postId, commentId }: ReactionsProps) => {
             : `/reactions/comment/${commentId}`
         );
 
-        const counts: Record<ReactionType, number> = {
-          LIKE: 0,
-          LOVE: 0,
-      
-        };
+        // Count reactions
+        const counts = { LIKE: 0, LOVE: 0 };
 
-        res.data.forEach((r: ReactionResponse) => {
+        res.data.forEach((r) => {
           counts[r.type]++;
-          if (r.isUserReaction) setUserReaction(r.type);
+
+          // Detect user's own reaction
+          if (userId && r.user?.id === userId) {
+            setUserReaction(r.type);
+          }
         });
 
         setReactions(counts);
@@ -59,12 +51,12 @@ const ReactionsFeature = ({ postId, commentId }: ReactionsProps) => {
     };
 
     fetchReactions();
-  }, [postId, commentId]);
+  }, [postId, commentId, userId]);
 
   // ===============================
   // TOGGLE REACTION
   // ===============================
-  const handleReact = async (type: ReactionType) => {
+  const handleReact = async (type) => {
     const token = localStorage.getItem("auth_token");
     if (!token) return alert("Please login first");
     if (!postId && !commentId) return;
@@ -75,13 +67,14 @@ const ReactionsFeature = ({ postId, commentId }: ReactionsProps) => {
         {
           postId,
           commentId,
-          type: type.toUpperCase(), // 🔑 convert to Prisma enum format
+          type: type.toUpperCase(),
         },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
+      // Update UI instantly
       setReactions((prev) => {
         const updated = { ...prev };
 
@@ -96,7 +89,7 @@ const ReactionsFeature = ({ postId, commentId }: ReactionsProps) => {
 
         return updated;
       });
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || "Reaction failed");
     }
@@ -104,10 +97,12 @@ const ReactionsFeature = ({ postId, commentId }: ReactionsProps) => {
 
   return (
     <div className="reactions-container">
-      {(Object.keys(reactionIcons) as ReactionType[]).map((type) => (
+      {Object.keys(reactionIcons).map((type) => (
         <button
           key={type}
-          className={`reaction-btn ${userReaction === type ? "active" : ""}`}
+          className={`reaction-btn ${
+            userReaction === type ? "active" : ""
+          }`}
           onClick={() => handleReact(type)}
         >
           {reactionIcons[type]} {reactions[type]}

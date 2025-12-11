@@ -21,9 +21,10 @@ const CommentsFeature = ({ postId }: CommentsFeatureProps) => {
         const res = await api.get<Comment[]>(`/comments/${postId}`);
         setComments(res.data);
       } catch (err) {
-        console.error("Failed to fetch comments");
+        console.error("Failed to fetch comments", err);
       }
     };
+
     fetchComments();
   }, [postId]);
 
@@ -31,7 +32,7 @@ const CommentsFeature = ({ postId }: CommentsFeatureProps) => {
     if (!newComment.trim()) return;
 
     try {
-      const res = await api.post(`/comments`, {
+      const res = await api.post<Comment>(`/comments`, {
         postId,
         text: newComment,
       });
@@ -39,7 +40,7 @@ const CommentsFeature = ({ postId }: CommentsFeatureProps) => {
       setComments((prev) => [...prev, res.data]);
       setNewComment("");
     } catch (err) {
-      console.error("Failed to add comment");
+      console.error("Failed to add comment", err);
     }
   };
 

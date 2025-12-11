@@ -14,10 +14,8 @@ const NotificationsFeature = () => {
   ]);
 
   const markAsRead = (id: number) => {
-    setNotifications(
-      notifications.map((n) =>
-        n.id === id ? { ...n, read: true } : n
-      )
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
   };
 

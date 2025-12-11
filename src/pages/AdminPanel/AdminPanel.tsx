@@ -1,14 +1,42 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import api from "../../services/api";
 import "./AdminPanel.css";
 
 const AdminPanel = () => {
-  // Mock data
-  const [stats] = useState({
-    users: 120,
-    posts: 340,
-    comments: 890,
-    reports: 12,
+  const [stats, setStats] = useState({
+    users: 0,
+    posts: 0,
+    comments: 0,
+    reports: 0,
   });
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // Only users real API exists
+        const res = await api.get("/users");
+
+        const usersCount = Array.isArray(res.data) ? res.data.length : 0;
+
+        setStats({
+          users: usersCount,
+          posts: 0, // no API yet
+          comments: 0, // no API yet
+          reports: 0, // no API yet
+        });
+      } catch (err) {
+        console.error("Failed to load admin stats", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  if (loading) return <h2>Loading admin data...</h2>;
 
   return (
     <div className="admin-panel-container">

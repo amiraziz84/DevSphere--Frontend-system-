@@ -1,4 +1,4 @@
-import  { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import "./AuthFeature.css";
 
@@ -8,7 +8,6 @@ import "./AuthFeature.css";
 type User = {
   username: string;
   role: "user" | "moderator" | "admin";
-  
 };
 
 interface AuthContextType {
@@ -34,13 +33,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = (userData: User, token: string) => {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
-    localStorage.setItem("auth_token", token); //  <-- FIXED
+    localStorage.setItem("auth_token", token);
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
-    localStorage.removeItem("auth_token"); //  <-- FIXED
+    localStorage.removeItem("auth_token");
   };
 
   return (
@@ -63,7 +62,7 @@ export const useAuth = (): AuthContextType => {
 // ProtectedRoute
 // ------------------
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+  children: ReactNode;
   roles?: ("user" | "moderator" | "admin")[];
 }
 
@@ -72,7 +71,9 @@ export const ProtectedRoute = ({ children, roles }: ProtectedRouteProps) => {
 
   if (!user) return <Navigate to="/login" replace />;
 
-  if (roles && !roles.includes(user.role)) return <Navigate to="/" replace />;
+  if (roles && !roles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
 
-  return <>{children}</>; // ReactNode support for multiple children
+  return <>{children}</>;
 };

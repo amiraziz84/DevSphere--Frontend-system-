@@ -1,4 +1,5 @@
 import "./NotificationItem.css";
+import { BASE_URL } from "../../services/api";
 
 interface NotificationItemProps {
   notification: {
@@ -12,13 +13,23 @@ interface NotificationItemProps {
 }
 
 const NotificationItem = ({ notification }: NotificationItemProps) => {
+  const finalAvatar = notification.avatar
+    ? notification.avatar.startsWith("http")
+      ? notification.avatar
+      : `${BASE_URL}${notification.avatar}`
+    : "https://i.pravatar.cc/40";
+
   return (
     <div className="notification-item">
       {/* User Avatar */}
       <img
-        src={notification.avatar || "https://i.pravatar.cc/40"}
+        src={finalAvatar}
         alt="avatar"
         className="notification-avatar"
+        onError={(e) => {
+          (e.target as HTMLImageElement).onerror = null;
+          (e.target as HTMLImageElement).src = "https://i.pravatar.cc/40";
+        }}
       />
 
       {/* Notification Content */}

@@ -10,45 +10,38 @@ const HomePage = () => {
   const [activeTag, setActiveTag] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // 🔥 Auto-computed filtered posts (NO STATE, NO RE-RENDER LOOP)
+  // 🔥 Auto-filter posts based on tag
   const filteredPosts = activeTag
     ? posts.filter((post) => post?.tags?.includes(activeTag))
     : posts;
 
-  // 🔥 Fetch Posts from Backend
+  // 🔥 Fetch Posts from Backend (PUBLIC ROUTE)
   const fetchPosts = async () => {
-  try {
-    const token = localStorage.getItem("token");
+    try {
+      const res = await api.get("/posts");
 
-const res = await api.get("/posts", {
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-});
+      const postsArray = Array.isArray(res.data?.data)
+        ? res.data.data
+        : [];
 
-    // ✅ Adjust this depending on your backend
-    const postsArray = Array.isArray(res.data?.data) ? res.data.data : [];
-
-    setPosts(postsArray);
-  } catch (err) {
-    console.error("Failed to fetch posts:", err);
-    setPosts([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
+      setPosts(postsArray);
+    } catch (err) {
+      console.error("Failed to fetch posts:", err);
+      setPosts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchPosts();
   }, []);
 
-  // 🔥 Tag Filter Handler – Used everywhere
+  // 🔥 Tag Filter Handler
   const handleTagClick = (tag) => {
     setActiveTag(tag);
   };
 
-  // ✔ Clear Filter
   const clearFilter = () => {
     setActiveTag("");
   };
@@ -85,20 +78,18 @@ const res = await api.get("/posts", {
         <div className="widget">
           <h3>Latest Tags</h3>
           <div className="tags">
-            {["react", "javascript", "nodejs", "css", "webdev"].map(
-              (tag) => (
-                <span
-                  key={tag}
-                  onClick={() => handleTagClick(tag)}
-                  style={{
-                    cursor: "pointer",
-                    fontWeight: activeTag === tag ? "bold" : "normal",
-                  }}
-                >
-                  #{tag}
-                </span>
-              )
-            )}
+            {["react", "javascript", "nodejs", "css", "webdev"].map((tag) => (
+              <span
+                key={tag}
+                onClick={() => handleTagClick(tag)}
+                style={{
+                  cursor: "pointer",
+                  fontWeight: activeTag === tag ? "bold" : "normal",
+                }}
+              >
+                #{tag}
+              </span>
+            ))}
 
             <span
               style={{

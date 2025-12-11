@@ -1,4 +1,3 @@
-// features/posts/PostsFeature.jsx
 import { useState, useEffect, useCallback } from "react";
 import api from "../../services/api";
 import "./PostsFeature.css";
@@ -10,27 +9,28 @@ const PostsFeature = () => {
   // Stable fetch function
   const fetchPosts = useCallback(async () => {
     try {
-      setLoading(true); // loading start
+      setLoading(true);
       const res = await api.get("/posts");
       const postsArray = Array.isArray(res.data?.data) ? res.data.data : [];
 
-      // normalize tags if needed
+      // Normalizing tags safely
       const normalizedPosts = postsArray.map((post) => ({
         ...post,
-        tags: post.tags?.flatMap((t) => {
-          try {
-            return JSON.parse(t);
-          } catch {
-            return t;
-          }
-        }) || [],
+        tags:
+          post.tags?.flatMap((t) => {
+            try {
+              return JSON.parse(t); // if t is a JSON string
+            } catch {
+              return t; // if already normal
+            }
+          }) || [],
       }));
 
       setPosts(normalizedPosts);
     } catch (error) {
       console.error("Error fetching posts:", error);
     } finally {
-      setLoading(false); // loading end
+      setLoading(false);
     }
   }, []);
 
@@ -55,9 +55,12 @@ const PostsFeature = () => {
           )}
           <h2 className="post-title">{post.title}</h2>
           <p className="post-content">{post.content}</p>
+
           <div className="post-tags">
             {post.tags.map((tag, idx) => (
-              <span key={idx} className="post-tag">{tag}</span>
+              <span key={idx} className="post-tag">
+                {tag}
+              </span>
             ))}
           </div>
         </div>
