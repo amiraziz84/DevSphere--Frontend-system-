@@ -63,7 +63,7 @@ const PostCard = ({ post }) => {
             className="author-avatar"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = `${BASE_URL}/uploads/profile/default.png`;
+              // e.target.src = `${BASE_URL}/uploads/profile/default.png`;
             }}
           />
 
