@@ -1,9 +1,12 @@
+import React from "react";
 import "./PostCard.css";
 import ReactionsFeature from "../../features/reactions/ReactionsFeature";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../services/api";
-import React from "react";
 
+// ======================
+// Banner Image Component
+// ======================
 const BannerImage = React.memo(({ url, title }) => {
   const finalUrl = url.startsWith("http") ? url : `${BASE_URL}${url}`;
 
@@ -16,13 +19,16 @@ const BannerImage = React.memo(({ url, title }) => {
         loading="lazy"
         onError={(e) => {
           e.target.onerror = null;
-          e.target.src = `${BASE_URL}/uploads/profile/profile_4512283c-81bd-40aa-9f16-1031501dce7c.png`;
+          e.target.src = `${BASE_URL}/uploads/default.png`;
         }}
       />
     </div>
   );
 });
 
+// ======================
+// Main PostCard Component
+// ======================
 const PostCard = ({ post }) => {
   const navigate = useNavigate();
   const postId = post.id || post._id;
@@ -37,15 +43,18 @@ const PostCard = ({ post }) => {
       })
     : "Unknown Date";
 
-  // FIXED: Profile Pic URL (no white blink, no broken image)
+  // ================================
+  // FIXED: Stable Profile Pic URL
+  // ================================
   const authorAvatarUrl = post.author?.profilePic
     ? post.author.profilePic.startsWith("http")
       ? post.author.profilePic
-      : `${BASE_URL}${post.author.profilePic.replace("//", "/")}`
+      : `${BASE_URL}${post.author.profilePic}`
     : `${BASE_URL}/uploads/profile/default.png`;
 
   return (
     <div className="post-card">
+      {/* Header */}
       <div className="post-header">
         <div className="author-info">
           <img
@@ -54,9 +63,10 @@ const PostCard = ({ post }) => {
             className="author-avatar"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = `${BASE_URL}/uploads/profile/profile_4512283c-81bd-40aa-9f16-1031501dce7c.png`;
+              e.target.src = `${BASE_URL}/uploads/profile/default.png`;
             }}
           />
+
           <div>
             <h4 className="author-name">
               {post.author?.name || "Unknown User"}
@@ -66,21 +76,25 @@ const PostCard = ({ post }) => {
         </div>
       </div>
 
+      {/* Banner Image */}
       {(post.bannerUrl || post.image) && (
         <BannerImage url={rawImageUrl} title={post.title} />
       )}
 
+      {/* Main Content */}
       <div
         onClick={() => navigate(`/posts/${postId}`)}
         style={{ cursor: "pointer" }}
       >
         <h3 className="post-title">{post.title}</h3>
+
         <p className="post-snippet">
           {post.content?.slice(0, 150) || ""}
           {post.content && post.content.length > 150 ? "..." : ""}
         </p>
       </div>
 
+      {/* Reactions */}
       <ReactionsFeature
         postId={postId}
         initialReactions={{
@@ -91,6 +105,7 @@ const PostCard = ({ post }) => {
         }}
       />
 
+      {/* Comments Count */}
       <div className="post-reactions">
         <span>💬 {post.comments ?? 0}</span>
       </div>
