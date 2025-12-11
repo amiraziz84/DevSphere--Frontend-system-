@@ -47,10 +47,11 @@ const PostCard = ({ post }) => {
   // FIXED: Stable Profile Pic URL
   // ================================
   const authorAvatarUrl = post.author?.profilePic
-    ? post.author.profilePic.startsWith("http")
+    ? post.author.profilePic.startsWith("https")
       ? post.author.profilePic
       : `${BASE_URL}${post.author.profilePic}`
-    : `${BASE_URL}/uploads/profile/default.png`;
+    // : `${BASE_URL}/uploads/profile/default.png`;
+       : null;
 
   return (
     <div className="post-card">
@@ -63,7 +64,7 @@ const PostCard = ({ post }) => {
             className="author-avatar"
             onError={(e) => {
               e.target.onerror = null;
-              // e.target.src = `${BASE_URL}/uploads/profile/default.png`;
+              e.target.src = `${BASE_URL}/uploads/profile/default.png`;
             }}
           />
 
