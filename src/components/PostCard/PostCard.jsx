@@ -16,7 +16,7 @@ const BannerImage = React.memo(({ url, title }) => {
         loading="lazy"
         onError={(e) => {
           e.target.onerror = null;
-          e.target.src = `${BASE_URL}/uploads/default.png`;
+          e.target.src = `${BASE_URL}/uploads/profile/profile_4512283c-81bd-40aa-9f16-1031501dce7c.png`;
         }}
       />
     </div>
