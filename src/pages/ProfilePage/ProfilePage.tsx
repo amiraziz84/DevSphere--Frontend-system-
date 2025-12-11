@@ -19,8 +19,11 @@ const ProfilePage: React.FC = () => {
       try {
         const res = await api.get("/users/me");
 
-        const profilePic = res.data.profilePic
-          ? `${BASE_URL}${res.data.profilePic.replace(/^\/+/, "")}`
+        const rawPic = res.data.profilePic;
+
+        // 🔥 FIXED: Always generate correct image URL
+        const profilePic = rawPic
+          ? `${BASE_URL}/${rawPic.replace(/^\/+/, "")}`
           : `${BASE_URL}/uploads/profile/default.png`;
 
         const userData: UserProfile = {
