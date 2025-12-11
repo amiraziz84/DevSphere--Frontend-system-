@@ -50,8 +50,7 @@ const PostCard = ({ post }) => {
     ? post.author.profilePic.startsWith("http")
       ? post.author.profilePic
       : `${BASE_URL}${post.author.profilePic}`
-    : `${BASE_URL}/uploads/profile/profile_4512283c-81bd-40aa-9f16-1031501dce7c.png`;
-    console.log(`${BASE_URL}/uploads/profile/profile_4512283c-81bd-40aa-9f16-1031501dce7c.png`);
+    : `${BASE_URL}/uploads/profile/default.png`;
 
   return (
     <div className="post-card">
@@ -59,7 +58,7 @@ const PostCard = ({ post }) => {
       <div className="post-header">
         <div className="author-info">
           <img
-            src={authorAvatarUrl}
+            src={`https://ravishing-nature-production-31c7.up.railway.app/uploads/profile/profile_4512283c-81bd-40aa-9f16-1031501dce7c.jpeg`}
             alt={post.author?.name || "Author"}
             className="author-avatar"
             onError={(e) => {
