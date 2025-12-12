@@ -1,69 +1,80 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./NotificationsFeature.css";
-import { BASE_URL } from "../../services/api";
+import { BASE_URL } from "../../services/api"; // Make sure BASE_URL is correct
 
 type Notification = {
   id: string;
-  title: string;
   message: string;
-  isRead: boolean;
+  read: boolean;
   createdAt: string;
 };
 
 const NotificationsFeature = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  // Load notifications
+  // Fetch notifications from backend
   useEffect(() => {
     const fetchNotifications = async () => {
       const token = localStorage.getItem("token");
+      if (!token) {
+        setLoading(false);
+        return;
+      }
 
-      const res = await axios.get(`${BASE_URL}/notifications`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      setNotifications(res.data);
+      try {
+        const res = await axios.get(`${BASE_URL}/notifications`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setNotifications(res.data);
+      } catch (err) {
+        console.error("Failed to fetch notifications:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchNotifications();
   }, []);
 
-  // Mark one notification as read
+  // Mark a single notification as read
   const markAsRead = async (id: string) => {
     const token = localStorage.getItem("token");
+    if (!token) return;
 
-    // FIXED URL
-    await axios.patch(
-      `${BASE_URL}/notifications/${id}/read`,
-      {},
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+    try {
+      await axios.patch(
+        `${BASE_URL}/notifications/${id}/read`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-    );
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+      );
+    } catch (err) {
+      console.error("Failed to mark notification as read:", err);
+    }
   };
 
   return (
     <div className="notifications-feature">
       <h3>Notifications</h3>
 
-      {notifications.length === 0 && (
+      {loading && <p>Loading notifications...</p>}
+
+      {!loading && notifications.length === 0 && (
         <p className="no-noti">No notifications yet</p>
       )}
 
       {notifications.map((n) => (
         <div
           key={n.id}
-          className={`notification-card ${n.isRead ? "read" : "unread"}`}
+          className={`notification-card ${n.read ? "read" : "unread"}`}
           onClick={() => markAsRead(n.id)}
         >
-          {/* Backend returns title/message */}
-          <strong>{n.title}</strong>
-          <p>{n.message}</p>
+          {n.message}
         </div>
       ))}
     </div>
