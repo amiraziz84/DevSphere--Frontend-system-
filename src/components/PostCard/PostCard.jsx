@@ -19,6 +19,7 @@ const BannerImage = React.memo(({ url, title }) => {
         loading="lazy"
         onError={(e) => {
           e.target.onerror = null;
+          console.log("Broken image detected:", target.src, "in component PostCard");
           e.target.src = `${BASE_URL}/uploads/default.png`;
         }}
       />
@@ -59,12 +60,12 @@ const PostCard = ({ post }) => {
       <div className="post-header">
         <div className="author-info">
           <img
-            src={`https://ravishing-nature-production-31c7.up.railway.app/uploads/profile/profile_4512283c-81bd-40aa-9f16-1031501dce7c.jpeg`}
+            src={`https`}
             alt={post.author?.name || "Author"}
             className="author-avatar"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = `${BASE_URL}/uploads/profile/default.png`;
+              e.target.src = `${BASE_URL}/uploads/profile/profile_undefined.png`;
             }}
           />
 
