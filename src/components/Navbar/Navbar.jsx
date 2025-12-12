@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import api, { BASE_URL } from "../../services/api"; // Axios instance + URL
+import api, { BASE_URL } from "../../services/api"; 
 import "./Navbar.css";
 
 function Navbar() {
@@ -23,34 +23,44 @@ function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationsRef = useRef();
 
-  // LOGIN
+  // LOGIN STATE
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  // Check login
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
     setIsLoggedIn(!!token);
-
-    const listener = () => {
-      const newToken = localStorage.getItem("auth_token");
-      setIsLoggedIn(!!newToken);
-    };
-
-    window.addEventListener("auth-change", listener);
-    return () => window.removeEventListener("auth-change", listener);
   }, []);
 
-  // SEARCH input change
+  // Fetch Notifications
+  useEffect(() => {
+    const token = localStorage.getItem("auth_token");
+    if (!token) return;
+
+    const fetchNotifications = async () => {
+      try {
+        const res = await api.get("/notifications", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setNotifications(res.data || []);
+      } catch (err) {
+        console.error("Notifications fetch error:", err);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
+  // SEARCH HANDLING
   const onChangeSearch = (e) => {
     setQuery(e.target.value);
     setShowDropdown(true);
   };
 
-  // SEARCH fetch
   useEffect(() => {
     if (!query.trim()) {
       setResults({ posts: [], users: [], tags: [] });
-      setShowDropdown(false);
-      return;
+      return setShowDropdown(false);
     }
 
     if (typingTimeout.current) clearTimeout(typingTimeout.current);
@@ -58,14 +68,11 @@ function Navbar() {
     typingTimeout.current = setTimeout(async () => {
       try {
         const res = await api.get(`/search?q=${query}`);
-        const data = res.data;
-
         setResults({
-          posts: data.posts || [],
-          users: data.users || [],
-          tags: data.tags || [],
+          posts: res.data.posts || [],
+          users: res.data.users || [],
+          tags: res.data.tags || [],
         });
-
         setShowDropdown(true);
       } catch (err) {
         console.error("Search error:", err);
@@ -77,10 +84,11 @@ function Navbar() {
     setShowDropdown(false);
 
     if (type === "post") navigate(`/posts/${item.id}`);
-    if (type === "user") navigate(`/profile/${item.username}`);
-    if (type === "tag") navigate(`/tag/${item}`);
+    if (type === "user") navigate(`/u/${item.username}`);
+    if (type === "tag") navigate(`/search?tag=${item}`);
   };
 
+  // Enter search
   const handleSearchSubmit = (e) => {
     if (e.key === "Enter" && query.trim()) {
       navigate(`/search?q=${query}`);
@@ -88,7 +96,7 @@ function Navbar() {
     }
   };
 
-  // Close dropdowns on outside click
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -108,27 +116,20 @@ function Navbar() {
       }
     };
 
-    const handleEsc = (e) => {
-      if (e.key === "Escape") setShowDropdown(false);
-    };
-
     document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEsc);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEsc);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Logout
   const handleLogout = () => {
     localStorage.removeItem("auth_token");
-    window.dispatchEvent(new Event("auth-change"));
+    setIsLoggedIn(false);
     navigate("/login");
   };
 
   return (
     <nav className="navbar">
+
       {/* LEFT */}
       <div className="nav-left">
         <Link to="/" className="logo">
@@ -150,6 +151,7 @@ function Navbar() {
 
         {showDropdown && (
           <div className="search-dropdown" ref={dropdownRef}>
+
             {/* POSTS */}
             {results.posts.length > 0 && (
               <>
@@ -168,7 +170,7 @@ function Navbar() {
 
             {/* USERS */}
             {results.users.length > 0 && (
-              <div>
+              <>
                 <strong>Users</strong>
                 {results.users.map((u) => (
                   <div
@@ -180,8 +182,7 @@ function Navbar() {
                       src={
                         u.profilePic
                           ? `${BASE_URL}${u.profilePic}`
-                          // : `${BASE_URL}/uploads/profile/default.png`
-                           : null
+                          : `${BASE_URL}/uploads/profile/default.png`
                       }
                       alt="avatar"
                       className="dropdown-avatar"
@@ -189,12 +190,12 @@ function Navbar() {
                     @{u.username}
                   </div>
                 ))}
-              </div>
+              </>
             )}
 
             {/* TAGS */}
             {results.tags.length > 0 && (
-              <div>
+              <>
                 <strong>Tags</strong>
                 {results.tags.map((t, i) => (
                   <div
@@ -205,7 +206,7 @@ function Navbar() {
                     #{t}
                   </div>
                 ))}
-              </div>
+              </>
             )}
 
             {/* EMPTY */}
@@ -218,12 +219,15 @@ function Navbar() {
         )}
       </div>
 
-      {/* RIGHT */}
+      {/* RIGHT SIDE */}
       <div className="nav-right">
+
+        {/* Create post */}
         <button className="circle-btn" onClick={() => navigate("/create-post")}>
           ✏️
         </button>
 
+        {/* Theme toggle */}
         <button
           className="circle-btn"
           onClick={() => setTheme(theme === "light" ? "dark" : "light")}
@@ -238,19 +242,25 @@ function Navbar() {
             onClick={() => setShowNotifications((p) => !p)}
           >
             🔔
-            {notifications.length > 0 && (
-              <span className="notif-count">{notifications.length}</span>
+            {notifications.filter((n) => !n.isRead).length > 0 && (
+              <span className="notif-count">
+                {notifications.filter((n) => !n.isRead).length}
+              </span>
             )}
           </button>
 
           {showNotifications && (
             <div className="notif-dropdown">
-              {notifications.map((n) => (
-                <div key={n.id} className="dropdown-item notif-item">
-                  <div className="notif-text">{n.text}</div>
-                  <div className="notif-time">{n.time}</div>
-                </div>
-              ))}
+              {notifications.length > 0 ? (
+                notifications.map((n) => (
+                  <div key={n.id} className="dropdown-item notif-item">
+                    <div className="notif-text">{n.text}</div>
+                    <div className="notif-time">{n.time}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="dropdown-item">No notifications</div>
+              )}
 
               <div
                 className="dropdown-item view-all"
@@ -265,18 +275,16 @@ function Navbar() {
           )}
         </div>
 
-        {/* Login */}
-        <div className="login-wrapper">
-          {isLoggedIn ? (
-            <button className="login-btn" onClick={handleLogout}>
-              Logout
-            </button>
-          ) : (
-            <button className="login-btn" onClick={() => navigate("/login")}>
-              Login
-            </button>
-          )}
-        </div>
+        {/* Login/Logout */}
+        {isLoggedIn ? (
+          <button className="login-btn" onClick={handleLogout}>
+            Logout
+          </button>
+        ) : (
+          <button className="login-btn" onClick={() => navigate("/login")}>
+            Login
+          </button>
+        )}
       </div>
     </nav>
   );
