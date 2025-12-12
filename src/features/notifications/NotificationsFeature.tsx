@@ -3,11 +3,11 @@ import axios from "axios";
 import "./NotificationsFeature.css";
 import { BASE_URL } from "../../services/api";
 
-
 type Notification = {
   id: string;
+  title: string;
   message: string;
-  read: boolean;
+  isRead: boolean;
   createdAt: string;
 };
 
@@ -18,9 +18,11 @@ const NotificationsFeature = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       const token = localStorage.getItem("token");
-      const res = await axios.get(`${BASE_URL}/notifications/my`, {
+
+      const res = await axios.get(`${BASE_URL}/notifications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       setNotifications(res.data);
     };
 
@@ -30,12 +32,18 @@ const NotificationsFeature = () => {
   // Mark one notification as read
   const markAsRead = async (id: string) => {
     const token = localStorage.getItem("token");
-    await axios.patch(`${BASE_URL}/notifications/read/${id}`, {}, {  
-      headers: { Authorization: `Bearer ${token}` },
-    });
+
+    // FIXED URL
+    await axios.patch(
+      `${BASE_URL}/notifications/${id}/read`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
 
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
     );
   };
 
@@ -50,10 +58,12 @@ const NotificationsFeature = () => {
       {notifications.map((n) => (
         <div
           key={n.id}
-          className={`notification-card ${n.read ? "read" : "unread"}`}
+          className={`notification-card ${n.isRead ? "read" : "unread"}`}
           onClick={() => markAsRead(n.id)}
         >
-          {n.message}
+          {/* Backend returns title/message */}
+          <strong>{n.title}</strong>
+          <p>{n.message}</p>
         </div>
       ))}
     </div>
